@@ -69,7 +69,7 @@ function App() {
 
         {/* Routes */}
         <Routes>
-          <Route path="/" element={<div>Welcome to the Menu! Please select an option above.</div>} />
+          <Route path="/" element={<div>Egebimtes Araç Rezervasyon Sistemine Hoşgeldiniz.</div>} />
           <Route path="/AracList" element={<AracList />} />
           <Route path="/istekler" element={<RequestsPanel />} />
           <Route path="/updatevehicle" element={<UpdateVehiclePage />} />
