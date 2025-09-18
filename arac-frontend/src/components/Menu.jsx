@@ -41,6 +41,42 @@ const Menu = () => {
             </button>
           </div>
         </Link>
+        <Link to="/arac_istekleri">
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 space-y-4">
+            <h2 className="text-xl font-semibold text-purple-700 flex items-center gap-2">
+              <ClipboardList className="w-6 h-6 text-purple-600" />
+              Araç İstekleri
+            </h2>
+            <p className="text-gray-600">Araç isteklerinin listelendiği sayfa.</p>
+            <button className="px-4 py-2 bg-purple-600 text-white rounded-lg text-xs hover:bg-purple-700">
+              Git
+            </button>
+          </div>
+        </Link>
+        <Link to="/add-request">
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 space-y-4">
+            <h2 className="text-xl font-semibold text-red-700 flex items-center gap-2">
+              <ClipboardList className="w-6 h-6 text-red-600" />
+              İstek Ekle
+            </h2>
+            <p className="text-gray-600">Yeni istek ekleme sayfası.</p>
+            <button className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs hover:bg-red-700">
+              Git
+            </button>
+          </div>
+        </Link>
+        <Link to="/arac-list">
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 space-y-4">
+            <h2 className="text-xl font-semibold text-blue-700 flex items-center gap-2">
+              <CarFront className="w-6 h-6 text-blue-600" />
+              Araç İsteği oluştur
+            </h2>
+            <p className="text-gray-600">Araçların listelendiği sayfa.</p>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700">
+              Git
+            </button>
+          </div>
+        </Link>
       </main>
     </div>
   );

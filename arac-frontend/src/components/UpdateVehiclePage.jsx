@@ -8,6 +8,10 @@ export default function UpdateVehiclePage() {
   const { plaka } = location.state || {};
 
   const [updateForm, setUpdateForm] = useState({
+    marka: '',
+    model: '',
+    yil: '',
+    renk: '',
     plaka: "",
     yer: '',
     kullanan: '',
@@ -23,27 +27,32 @@ export default function UpdateVehiclePage() {
 
   useEffect(() => {
     if (!plaka) {
-      setError("❌ Plaka bilgisi alınamadı.");
-      setLoading(false);
+      // If no plaka passed, redirect back to /araclist
+      alert("❌ Geçerli bir plaka bilgisi alınamadı. Araç listesine yönlendiriliyorsunuz.");
+      navigate("/araclist");
       return;
     }
 
     const fetchVehicle = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/araclar/${encodeURIComponent(plaka)}`
-        );
+        const response = await fetch(`http://localhost:8000/araclar/${encodeURIComponent(plaka)}`);
         if (!response.ok) throw new Error("Araç bilgisi alınamadı.");
 
         const data = await response.json();
+        const vehicle = data.arac;
         setUpdateForm({
-          plaka: data.plaka,
-          yer: data.yer || '',
-          kullanan: data.kullanan || '',
-          baslangic: data.baslangic || '',
-          son: data.son || '',
-          durum: data.durum || '',
-          tahsis: data.tahsis || false,
-          tahsisli: data.tahsisli || '',
+          marka: vehicle.marka || '',
+          model: vehicle.model || '',
+          yil: vehicle.yil || '',
+          renk: vehicle.renk || '',
+          plaka: vehicle.plaka || '',
+          yer: vehicle.yer || '', 
+          kullanan: vehicle.kullanan || '',
+          baslangic: vehicle.baslangic || '',
+          son: vehicle.son || '',
+          durum: vehicle.durum || '',
+          tahsis: vehicle.tahsis || false,
+          tahsisli: vehicle.tahsisli || ''
         });
       } catch (err) {
         setError(err.message);
@@ -53,7 +62,7 @@ export default function UpdateVehiclePage() {
     };
 
     fetchVehicle();
-  }, [plaka]);
+  }, [plaka, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,7 +91,7 @@ export default function UpdateVehiclePage() {
       }
 
       alert("✅ Araç başarıyla güncellendi!");
-      navigate("/AracList");
+      navigate("/araclist");
     } catch (err) {
       alert("Hata: " + err.message);
     }

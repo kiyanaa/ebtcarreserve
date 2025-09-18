@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi import Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -10,6 +11,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 # Database
 # ----------------------------
 Base = declarative_base()
+
 engine = create_engine("sqlite:///araclar.db", connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine)
 
@@ -26,6 +28,10 @@ def get_db():
 class AracDB(Base):
     __tablename__ = "araclar"
     id = Column(Integer, primary_key=True, index=True)
+    marka = Column(String, nullable=True)
+    model = Column(String, nullable=True)
+    yil = Column(String, nullable=True)
+    renk = Column(String, nullable=True)
     plaka = Column(String, unique=True, index=True)
     yer = Column(String)
     durum = Column(String, default="uygun")
@@ -50,6 +56,10 @@ class IstekDB(Base):
 class IstekAracDB(Base):
     __tablename__ = "istek_arac"
     id = Column(Integer, primary_key=True, index=True)
+    marka = Column(String, nullable=True)
+    model = Column(String, nullable=True)
+    yil = Column(String, nullable=True)
+    renk = Column(String, nullable=True)
     plaka = Column(String)
     kullanan = Column(String, index=True)
     yer = Column(String)
@@ -58,7 +68,6 @@ class IstekAracDB(Base):
     son = Column(String, default="Belli değil")
     neden = Column(String, default="Yok")
     aciliyet = Column(String, default="Yok")
-
 Base.metadata.create_all(bind=engine)
 
 # ----------------------------
@@ -95,6 +104,10 @@ class IstekModel(BaseModel):
     aciliyet: Optional[str] = "Yok"
 
 class IstekAracModel(BaseModel):
+    marka: Optional[str] = None
+    model: Optional[str] = None
+    yil: Optional[str] = None
+    renk: Optional[str] = None
     plaka: str
     kullanan: str
     yer: str
@@ -105,6 +118,10 @@ class IstekAracModel(BaseModel):
     aciliyet: Optional[str] = "Yok"
 
 class IadeModel(BaseModel):
+    marka: Optional[str] = None
+    model: Optional[str] = None
+    yil: Optional[str] = None
+    renk: Optional[str] = None
     plaka: str
     yer: str
     son: str
@@ -118,8 +135,16 @@ class UzerineAlModel(BaseModel):
     neden: str
 
 class AracCreate(BaseModel):
+    marka: Optional[str] = None
+    model: Optional[str] = None
+    yil: Optional[str] = None
+    renk: Optional[str] = None
     plaka: str
     yer: str
+    kullanan: Optional[str] = None
+    baslangic: Optional[str] = None
+    son: Optional[str] = None
+    durum: Optional[str] = "uygun"
     tahsis: bool = False
     tahsisli: Optional[str] = None
 
@@ -141,6 +166,10 @@ class Istek:
 
 class IstekArac:
     def __init__(self, plaka: str, istek: Istek):
+        self.marka = istek.marka
+        self.model = istek.model
+        self.yil = istek.yil
+        self.renk = istek.renk
         self.plaka = plaka
         self.kullanan = istek.kullanan
         self.yer = istek.yer
@@ -152,6 +181,10 @@ class IstekArac:
 
 class Arac:
     def __init__(self, plaka: str, yer: str):
+        self.marka = None
+        self.model = None
+        self.yil = None
+        self.renk = None
         self.plaka = plaka
         self.yer = yer
         self.tahsis = False
@@ -180,6 +213,10 @@ class Arac:
 
     def arac_bilgileri(self):
         return {
+            "marka": self.marka,
+            "model": self.model,
+            "yil": self.yil,
+            "renk": self.renk,
             "plaka": self.plaka,
             "tahsis": self.tahsis,
             "tahsisli kişi": self.kisi,
@@ -211,6 +248,10 @@ def get_arac_by_plaka(plaka: str, db: Session = Depends(get_db)):
 def get_istekler(db: Session = Depends(get_db)):
     return db.query(IstekDB).all()
 
+@app.get("/istek_araclar")
+def get_istek_araclar(db: Session = Depends(get_db)):
+    return db.query(IstekAracDB).all()
+
 @app.post("/istek_olustur")
 def arac_iste(model: IstekModel, db: Session = Depends(get_db)):
     mevcut = db.query(IstekDB).filter(IstekDB.kullanan == model.kullanan).first()
@@ -235,11 +276,25 @@ def arac_iste(model: IstekModel, db: Session = Depends(get_db)):
     
 @app.put("/istek_olustur/{plaka}")
 def arac_iste(plaka: str, model: IstekAracModel, db: Session = Depends(get_db)):
+    # Aynı kullanıcı ve plakaya ait mevcut istek var mı kontrol et
+    mevcut = db.query(IstekAracDB).filter(
+        IstekAracDB.kullanan == model.kullanan,
+        IstekAracDB.plaka == model.plaka
+    ).first()
+
+    if mevcut:
+        # Hata vermeden mevcut isteği döndür
+        return {"status": "Bu kullanıcı ve araç için istek zaten mevcut.", "istek": jsonable_encoder(mevcut)}
+
     arac = db.query(AracDB).filter(AracDB.plaka == plaka).first()
     if not arac:
         raise HTTPException(status_code=404, detail="Araç bulunamadı")
 
     yeni_istek_arac = IstekAracDB(
+        marka=model.marka,
+        model=model.model,
+        yil=model.yil,
+        renk=model.renk,
         plaka=model.plaka,
         kullanan=model.kullanan,
         yer=model.yer,
@@ -255,6 +310,7 @@ def arac_iste(plaka: str, model: IstekAracModel, db: Session = Depends(get_db)):
     db.refresh(yeni_istek_arac)
 
     return {"status": "İstek oluşturuldu", "istek": jsonable_encoder(yeni_istek_arac)}
+
 
 @app.post("/uzerine_al/{plaka}")
 def arac_uzerine_al(plaka: str, model: UzerineAlModel, db: Session = Depends(get_db)):
@@ -307,8 +363,16 @@ def arac_ekle(arac: AracCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Bu plaka zaten mevcut")
 
     yeni_arac = AracDB(
+        marka=arac.marka,
+        model=arac.model,
+        yil=arac.yil,
+        renk=arac.renk,
         plaka=arac.plaka,
         yer=arac.yer,
+        kullanan = arac.kullanan,
+        baslangic = arac.baslangic,
+        son = arac.son,
+        durum = arac.durum,
         tahsis=arac.tahsis,
         tahsisli=arac.tahsisli
     )
@@ -343,14 +407,77 @@ def delete_arac(plaka: str, db: Session = Depends(get_db)):
     return {"status": "Araç silindi", "plaka": plaka}
 
 @app.delete("/istek_sil")
-def istek_sil(kullanan: str, db: Session = Depends(get_db)):
+def istek_sil(
+    kullanan: str = Query(None),
+    body: dict = Body(None),
+    db: Session = Depends(get_db)
+):
+    # Eğer query parametresi boşsa, body'den al
+    if body:
+        kullanan = kullanan or body.get("kullanan")
+
     if not kullanan:
         raise HTTPException(status_code=400, detail="Silmek için kullanan belirtilmeli")
 
     istek = db.query(IstekDB).filter(IstekDB.kullanan == kullanan).first()
+
     if not istek:
         raise HTTPException(status_code=404, detail="İstek bulunamadı")
 
     db.delete(istek)
     db.commit()
     return {"status": "İstek silindi", "kullanan": kullanan}
+@app.delete("/istek_arac_sil")
+def istek_arac_sil(
+    plaka: str = Query(None),
+    kullanan: str = Query(None),
+    body: dict = Body(None),
+    db: Session = Depends(get_db)
+):
+    # Eğer query parametreleri boşsa, body'den al
+    if body:
+        plaka = plaka or body.get("plaka")
+        kullanan = kullanan or body.get("kullanan")
+
+    if not kullanan or not plaka:
+        raise HTTPException(status_code=400, detail="Silmek için kullanan ve plaka belirtilmeli")
+
+    istek = db.query(IstekAracDB).filter(
+        IstekAracDB.kullanan == kullanan,
+        IstekAracDB.plaka == plaka
+    ).first()
+
+    if not istek:
+        raise HTTPException(status_code=404, detail="İstek bulunamadı")
+
+    db.delete(istek)
+    db.commit()
+    return {"status": "İstek silindi", "kullanan": kullanan, "plaka": plaka}
+
+@app.get("/uygun")
+def get_araclar_uygun(db: Session = Depends(get_db)):
+    araclar = db.query(AracDB).all()
+    uygun_araclar = []
+    for arac in araclar:
+        if arac.durum.lower() == "uygun":
+            uygun_araclar.append(arac)
+    return uygun_araclar
+
+@app.delete("/istek_sil_tumu/{kullanan}")
+def istek_sil_tumu(kullanan: str, db: Session = Depends(get_db)):
+    try:
+        # Hem IstekDB hem IstekAracDB'den sil
+        db.query(IstekDB).filter(IstekDB.kullanan == kullanan).delete()
+        db.query(IstekAracDB).filter(IstekAracDB.kullanan == kullanan).delete()
+        db.commit()
+        return {"message": f"{kullanan} adlı kullanıcının tüm istekleri silindi"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Hata: {str(e)}")
+
+@app.delete("/istek_sil_plaka/{plaka}")
+def istek_sil_plaka(plaka: str, db: Session = Depends(get_db)):
+    db.query(IstekAracDB).filter(IstekAracDB.plaka == plaka).delete()
+    db.commit()
+    return {"message": f"{plaka} plakalı aracın tüm istekleri silindi"}
+

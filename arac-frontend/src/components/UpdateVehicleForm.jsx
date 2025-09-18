@@ -4,6 +4,38 @@ export default function UpdateVehicleForm({ updateForm, setUpdateForm, onSubmit 
       <h3 className="font-semibold text-lg text-gray-700">🛠️ Araç Güncelle</h3>
 
       <input
+        placeholder="Marka"
+        value={updateForm.marka}
+        disabled
+        onChange={e => setUpdateForm(s => ({ ...s, marka: e.target.value }))}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
+      />
+
+      <input
+        placeholder="Model"
+        value={updateForm.model}
+        disabled
+        onChange={e => setUpdateForm(s => ({ ...s, model: e.target.value }))}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
+      />
+
+      <input
+        placeholder="Yıl"
+        value={updateForm.yil}
+        disabled
+        onChange={e => setUpdateForm(s => ({ ...s, yil: e.target.value }))}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
+      />
+
+      <input
+        placeholder="Renk"
+        value={updateForm.renk}
+        disabled
+        onChange={e => setUpdateForm(s => ({ ...s, renk: e.target.value }))}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
+      />
+
+      <input
         placeholder="Plaka"
         required
         value={updateForm.plaka}

@@ -4,6 +4,10 @@ import AracList from "./components/AracList";
 import RequestsPanel from "./components/RequestsPanel";
 import RequestVehiclePage from './components/RequestVehiclePage'
 import UpdateVehiclePage from './components/UpdateVehiclePage'
+import AddVehiclePage from './components/AddVehiclePage'
+import RequestVehiclePanel from "./components/RequestVehiclePanel";
+import AddRequestPage from "./components/AddRequestPage";
+import ReleaseVehiclePage from "./components/ReleaseVehiclePage";
 
 function Menu() {
   const location = useLocation(); // Get current route location
@@ -27,6 +31,21 @@ function Menu() {
             <Link to="/istekler">
               <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
                 İstekler
+              </button>
+            </Link>
+            <Link to="/arac_istekleri">
+              <button className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                Araç İstekleri
+              </button>
+            </Link>
+            <Link to="/request">
+              <button className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                İstek Ekle
+              </button>
+            </Link>
+            <Link to="/AracList">
+              <button className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+                Araç İstek Ekle
               </button>
             </Link>
           </div>
@@ -55,6 +74,10 @@ function App() {
           <Route path="/istekler" element={<RequestsPanel />} />
           <Route path="/updatevehicle" element={<UpdateVehiclePage />} />
           <Route path="/requestvehicle" element={<RequestVehiclePage />} />
+          <Route path="/addvehicle" element={<AddVehiclePage/>} />
+          <Route path="/arac_istekleri" element={<RequestVehiclePanel/>} />
+          <Route path="/request" element= {<AddRequestPage/>}/>
+          <Route path="/releasevehicle" element= {<ReleaseVehiclePage/>}/>
         </Routes>
       </div>
     </Router>

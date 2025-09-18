@@ -62,12 +62,13 @@ export default function RequestForm({ requestForm, setRequestForm, onSubmit }) {
           className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400"
         />
       </div>
-        <input
-          placeholder="Aciliyet"
-          value={requestForm.aciliyet || ""}
-          onChange={e => setRequestForm(s => ({ ...s, aciliyet: e.target.value }))}
-          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400"
-        />
+      
+      <input
+        placeholder="Aciliyet"
+        value={requestForm.aciliyet || ""}
+        onChange={e => setRequestForm(s => ({ ...s, aciliyet: e.target.value }))}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400"
+      />
 
       <button
         type="submit"

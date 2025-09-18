@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
 
 // RequestsPanel Component
-const RequestsPanel = ({ onDelete, onTake }) => {
+const RequestVehiclePanel = ({ onDelete, onTake }) => {
   const [requests, setRequests] = useState([]); // State to store request data
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
@@ -12,7 +12,7 @@ const RequestsPanel = ({ onDelete, onTake }) => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch("http://localhost:8000/istekler");
+        const response = await fetch("http://localhost:8000/istek_araclar");
         
         if (!response.ok) {
           throw new Error("Veri alırken bir hata oluştu");
@@ -45,84 +45,90 @@ const RequestsPanel = ({ onDelete, onTake }) => {
       </div>
     );
   }
-  const handleAddRequest = () => {
-    navigate("/Request"); // Navigate to the home page
+  const handle_request_vehicle = () => {
+    navigate("/AracList"); // Navigate to the home page
   };
 
-  const handleRequestDelete = async (kullanan) => {
+  const handleConfirmRequest = async (request) => {
+    const confirmAction = window.confirm(
+      `İsteği onaylamak istediğinize emin misiniz?\nKullanıcı: ${request.kullanan}\nPlaka: ${request.plaka}`
+    );
+    if (!confirmAction) return;
+
+    try {
+      // Backend'e PUT isteği göndererek aracın durumunu "kullanımda" yap
+      const response = await fetch(`http://localhost:8000/arac_guncelle/${request.plaka}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          durum: "kullanımda",
+          kullanan: request.kullanan,
+          baslangic: request.baslangic,
+          son: request.son,
+          yer: request.yer
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.detail || "Araç güncellenemedi");
+      }
+
+      const result = await response.json();
+      console.log("Güncel araç:", result.arac);
+
+      // İstek kaydını sil
+      await fetch(`http://localhost:8000/istek_sil_tumu/${request.kullanan}`, {
+        method: "DELETE"
+      });
+
+      // Frontend state güncelle
+      
+
+      await fetch(`http://localhost:8000/istek_sil_plaka/${request.plaka}`, {
+        method: "DELETE"
+      });
+      setRequests(prev => prev.filter(r => r.kullanan !== request.kullanan));
+      setRequests(prev => prev.filter(r => r.plaka !== request.plaka));
+
+      alert("Araç başarılı bir şekilde kullanımda olarak atandı!");
+
+    } catch (error) {
+      alert(`Hata: ${error.message}`);
+    }
+  };
+
+  const handleRequestDelete = async (kullanan, plaka) => {
   const confirmDelete = window.confirm(
-    `İsteği silmek istediğinize emin misiniz? Kullanıcı: ${kullanan}`
+    `İsteği silmek istediğinize emin misiniz? Kullanıcı: ${kullanan}, Plaka: ${plaka}`
   );
   if (!confirmDelete) return;
 
   try {
-    const response = await fetch(
-      `http://localhost:8000/istek_sil?kullanan=${encodeURIComponent(kullanan)}`,
-      {
-        method: "DELETE",
-      }
-    );
+    const response = await fetch(`http://localhost:8000/istek_arac_sil`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ kullanan, plaka }), // API'ye JSON gönder
+    });
 
     if (!response.ok) {
       throw new Error("İstek silinirken bir hata oluştu.");
     }
 
-    alert("İstek silindi!");
-    // Request listesini güncelle
-    setRequests((prev) => prev.filter((r) => r.kullanan !== kullanan));
+    // Başarılı silme sonrası frontend listesinden çıkar
+    setRequests((prev) =>
+      prev.filter(
+        (req) => !(req.kullanan === kullanan && req.plaka === plaka)
+      )
+    );
   } catch (error) {
     alert(`Hata: ${error.message}`);
   }
 };
-const requestAvailableVehicles = async (request) => {
-  try {
-    // 1️⃣ Backend'den sadece uygun araçları al
-    const response = await fetch("http://localhost:8000/uygun");
-    
-    if (!response.ok) throw new Error("Uygun araçlar alınamadı.");
-    const uygunAraclar = await response.json();
-
-    if (uygunAraclar.length === 0) {
-      alert("Uygun araç bulunamadı.");
-      return;
-    }
-
-    // 2️⃣ Her araç için istek oluştur
-    for (const arac of uygunAraclar) {
-      const res = await fetch(
-      `http://localhost:8000/istek_olustur/${arac.plaka}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: arac.model || "Bilinmiyor",
-          marka: arac.marka || "Bilinmiyor",
-          yil: arac.yil || "Bilinmiyor",
-          renk: arac.renk || "Bilinmiyor",
-          plaka: arac.plaka,
-          kullanan: request.kullanan,
-          yer: arac.yer || "Bilinmiyor",
-          gidilecek_yer: request.gidilecek_yer || "Bilinmiyor",
-          baslangic: request.baslangic || "Bilinmiyor",
-          son: request.son || "Bilinmiyor",
-          neden: request.neden || "Otomatik istektir",
-          aciliyet: request.aciliyet || "Orta",
-        }),
-      }
-    );
-
-      if (!res.ok) {
-        const err = await res.json();
-        console.error(`Araç ${arac.plaka} için istek oluşturulamadı:`, err.detail);
-      }
-    }
-
-    alert("✅ Tüm uygun araçlar için istekler oluşturuldu!");
-  } catch (err) {
-    alert("Hata: " + err.message);
-  }
-};
-
 
   return (
     <div className="space-y-6">
@@ -135,10 +141,15 @@ const requestAvailableVehicles = async (request) => {
       </button>
 
       <h2 className="text-2xl font-bold text-green-700">İstekler</h2>
-      <table className="w-full table-auto border-collapse">
+      <table className="w-full tiable-auto border-collapse">
         <thead>
           <tr>
-            <th>Kullanıcı</th>
+            <th>Marka</th>
+            <th>Model</th>
+            <th>Yıl</th>
+            <th>Renk</th>
+            <th>Plaka</th>
+            <th>Kullanan</th>
             <th>Başlangıç</th>
             <th>Son</th>
             <th>Aksiyonlar</th>
@@ -153,19 +164,24 @@ const requestAvailableVehicles = async (request) => {
             </tr>
           ) : (
             requests.map((request) => (
-              <tr key={request.kullanan}>
+              <tr key={`${request.plaka}-${request.kullanan}`}>
+                <td>{request.marka}</td>
+                <td>{request.model}</td>
+                <td>{request.yil}</td>
+                <td>{request.renk}</td>
+                <td>{request.plaka}</td>
                 <td>{request.kullanan}</td>
                 <td>{request.baslangic}</td>
                 <td>{request.son}</td>
                 <td>
                   <button
-                    onClick={() => requestAvailableVehicles(request)}
+                    onClick={() => handleConfirmRequest(request)}
                     className="text-blue-600 hover:text-blue-800"
                   >
-                    Uygun Tüm Araçları İste
+                    Onay Ver
                   </button>
                   <button
-                    onClick={() => handleRequestDelete(request.kullanan)}
+                    onClick={() => handleRequestDelete(request.kullanan, request.plaka)}
                     className="ml-2 text-red-600 hover:text-red-800"
                   >
                     Sil
@@ -178,7 +194,7 @@ const requestAvailableVehicles = async (request) => {
       </table>
       <div className="fixed bottom-4 right-4">
         <button
-          onClick={handleAddRequest}
+          onClick={handle_request_vehicle}
           className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 text-sm"
         >
           <span className="material-icons">add_circle</span> 
@@ -188,4 +204,4 @@ const requestAvailableVehicles = async (request) => {
   );
 };
 
-export default RequestsPanel;
+export default RequestVehiclePanel;

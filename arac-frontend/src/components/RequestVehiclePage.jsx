@@ -8,6 +8,10 @@ export default function RequestVehiclePage() {
   const { plaka } = location.state || {};
 
   const [requestForm, setRequestForm] = useState({
+    marka: "",
+    model: "",
+    yil: "",
+    renk: "",
     plaka: "",
     yer: "",
     gidilecek_yer: "",
@@ -21,34 +25,40 @@ export default function RequestVehiclePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!plaka) {
-      setError("❌ Plaka bilgisi alınamadı.");
-      setLoading(false);
-      return;
+  if (!plaka) {
+    setError("❌ Plaka bilgisi alınamadı.");
+    setLoading(false);
+    return;
+  }
+
+  const fetchVehicle = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/araclar/${encodeURIComponent(plaka)}`
+      );
+      if (!response.ok) throw new Error("Araç bilgisi alınamadı.");
+
+      const data = await response.json();
+      const vehicle = data.arac;
+      setRequestForm((prev) => ({
+        ...prev,
+        marka: vehicle.marka || "",
+        model: vehicle.model || "",
+        yil: vehicle.yil || "",
+        renk: vehicle.renk || "",
+        plaka: vehicle.plaka || plaka,
+        yer: vehicle.yer || "Bilinmiyor",
+      }));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false); // <- This should be here only after fetch
     }
+  };
 
-    const fetchVehicle = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8000/araclar/${encodeURIComponent(plaka)}`
-        );
-        if (!response.ok) throw new Error("Araç bilgisi alınamadı.");
+  fetchVehicle();
+}, [plaka]);
 
-        const data = await response.json();
-        setRequestForm((prev) => ({
-          ...prev,
-          plaka: data.plaka,
-          yer: data.yer || "",
-        }));
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVehicle();
-  }, [plaka]);
 
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -60,6 +70,10 @@ export default function RequestVehiclePage() {
         method: "PUT", // backend ile uyumlu
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+            marka: requestForm.marka,
+            model: requestForm.model,
+            yil: requestForm.yil,
+            renk: requestForm.renk,
             plaka: requestForm.plaka || plaka,       // URL ile aynı olmalı
             kullanan: requestForm.kullanan || "Bilinmiyor", 
             yer: requestForm.yer || "Bilinmiyor",
@@ -79,7 +93,7 @@ export default function RequestVehiclePage() {
         }
 
         alert("✅ İstek başarıyla oluşturuldu.");
-        navigate("/AracList");
+        navigate("/arac_istekleri");
     } catch (err) {
         alert("Hata: " + err.message);
     }
