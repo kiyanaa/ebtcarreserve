@@ -20,7 +20,7 @@ export default function AddRequestPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/istek_olustur", {
+      const response = await fetch("https://cardeal-vduj.onrender.com/istek_olustur", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestForm)

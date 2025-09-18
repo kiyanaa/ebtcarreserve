@@ -34,7 +34,7 @@ export default function RequestVehiclePage() {
   const fetchVehicle = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8000/araclar/${encodeURIComponent(plaka)}`
+        `https://cardeal-vduj.onrender.com/araclar/${encodeURIComponent(plaka)}`
       );
       if (!response.ok) throw new Error("Araç bilgisi alınamadı.");
 
@@ -65,7 +65,7 @@ export default function RequestVehiclePage() {
 
   try {
     const response = await fetch(
-      `http://localhost:8000/istek_olustur/${encodeURIComponent(plaka)}`,
+      `https://cardeal-vduj.onrender.com/istek_olustur/${encodeURIComponent(plaka)}`,
       {
         method: "PUT", // backend ile uyumlu
         headers: { "Content-Type": "application/json" },

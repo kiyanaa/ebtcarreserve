@@ -12,7 +12,7 @@ const RequestsPanel = ({ onDelete, onTake }) => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch("http://localhost:8000/istekler");
+        const response = await fetch("https://cardeal-vduj.onrender.com/istekler");
         
         if (!response.ok) {
           throw new Error("Veri alırken bir hata oluştu");
@@ -57,7 +57,7 @@ const RequestsPanel = ({ onDelete, onTake }) => {
 
   try {
     const response = await fetch(
-      `http://localhost:8000/istek_sil?kullanan=${encodeURIComponent(kullanan)}`,
+      `https://cardeal-vduj.onrender.com/istek_sil?kullanan=${encodeURIComponent(kullanan)}`,
       {
         method: "DELETE",
       }
@@ -77,7 +77,7 @@ const RequestsPanel = ({ onDelete, onTake }) => {
 const requestAvailableVehicles = async (request) => {
   try {
     // 1️⃣ Backend'den sadece uygun araçları al
-    const response = await fetch("http://localhost:8000/uygun");
+    const response = await fetch("https://cardeal-vduj.onrender.com/uygun");
     
     if (!response.ok) throw new Error("Uygun araçlar alınamadı.");
     const uygunAraclar = await response.json();
@@ -90,7 +90,7 @@ const requestAvailableVehicles = async (request) => {
     // 2️⃣ Her araç için istek oluştur
     for (const arac of uygunAraclar) {
       const res = await fetch(
-      `http://localhost:8000/istek_olustur/${arac.plaka}`,
+      `https://cardeal-vduj.onrender.com/istek_olustur/${arac.plaka}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -138,7 +138,7 @@ const requestAvailableVehicles = async (request) => {
       <table className="w-full table-auto border-collapse">
         <thead>
           <tr>
-            <th>Kullanıcı</th>
+            <th>Kullanan</th>
             <th>Başlangıç</th>
             <th>Son</th>
             <th>Aksiyonlar</th>

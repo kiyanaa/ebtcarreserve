@@ -11,7 +11,7 @@ const AracList = React.memo(function AracList() {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch("http://localhost:8000/araclar");
+        const response = await fetch("https://cardeal-vduj.onrender.com/araclar");
         if (!response.ok) throw new Error("Veri alırken bir hata oluştu");
         const data = await response.json();
 
@@ -43,7 +43,7 @@ const AracList = React.memo(function AracList() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/araclar/${plaka}`, {
+      const response = await fetch(`https://cardeal-vduj.onrender.com/araclar/${plaka}`, {
         method: "DELETE",
       });
 
@@ -80,7 +80,7 @@ const AracList = React.memo(function AracList() {
   // 🟡 Tahsisli aracı al
   const handleTakeVehicle = async (vehicle) => {
     try {
-      const response = await fetch(`http://localhost:8000/uzerine_al/${vehicle.plaka}`, {
+      const response = await fetch(`https://cardeal-vduj.onrender.com/uzerine_al/${vehicle.plaka}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -12,7 +12,7 @@ const RequestVehiclePanel = ({ onDelete, onTake }) => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await fetch("http://localhost:8000/istek_araclar");
+        const response = await fetch("https://cardeal-vduj.onrender.com/istek_araclar");
         
         if (!response.ok) {
           throw new Error("Veri alırken bir hata oluştu");
@@ -57,7 +57,7 @@ const RequestVehiclePanel = ({ onDelete, onTake }) => {
 
     try {
       // Backend'e PUT isteği göndererek aracın durumunu "kullanımda" yap
-      const response = await fetch(`http://localhost:8000/arac_guncelle/${request.plaka}`, {
+      const response = await fetch(`https://cardeal-vduj.onrender.com/arac_guncelle/${request.plaka}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -80,14 +80,14 @@ const RequestVehiclePanel = ({ onDelete, onTake }) => {
       console.log("Güncel araç:", result.arac);
 
       // İstek kaydını sil
-      await fetch(`http://localhost:8000/istek_sil_tumu/${request.kullanan}`, {
+      await fetch(`https://cardeal-vduj.onrender.com/istek_sil_tumu/${request.kullanan}`, {
         method: "DELETE"
       });
 
       // Frontend state güncelle
       
 
-      await fetch(`http://localhost:8000/istek_sil_plaka/${request.plaka}`, {
+      await fetch(`https://cardeal-vduj.onrender.com/istek_sil_plaka/${request.plaka}`, {
         method: "DELETE"
       });
       setRequests(prev => prev.filter(r => r.kullanan !== request.kullanan));
@@ -107,7 +107,7 @@ const RequestVehiclePanel = ({ onDelete, onTake }) => {
   if (!confirmDelete) return;
 
   try {
-    const response = await fetch(`http://localhost:8000/istek_arac_sil`, {
+    const response = await fetch(`https://cardeal-vduj.onrender.com/istek_arac_sil`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

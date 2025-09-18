@@ -35,7 +35,7 @@ export default function UpdateVehiclePage() {
 
     const fetchVehicle = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/araclar/${encodeURIComponent(plaka)}`);
+        const response = await fetch(`https://cardeal-vduj.onrender.com/araclar/${encodeURIComponent(plaka)}`);
         if (!response.ok) throw new Error("Araç bilgisi alınamadı.");
 
         const data = await response.json();
@@ -68,7 +68,7 @@ export default function UpdateVehiclePage() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`http://localhost:8000/arac_guncelle/${encodeURIComponent(updateForm.plaka)}`,
+      const response = await fetch(`https://cardeal-vduj.onrender.com/arac_guncelle/${encodeURIComponent(updateForm.plaka)}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
