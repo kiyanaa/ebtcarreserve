@@ -32,7 +32,7 @@ const AracList = React.memo(function AracList() {
     }
 
     // Payload username alert
-    alert("Payload position: " + payload.username);
+    alert("Payload position: " + payload.position);
 
     const fetchVehicles = async () => {
       try {
