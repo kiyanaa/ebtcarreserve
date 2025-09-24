@@ -42,7 +42,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="relative flex items-center justify-center h-screen bg-gray-100">
       <form
         onSubmit={handleLogin}
         className="bg-white p-8 rounded-xl shadow-md w-80 flex flex-col gap-4 text-center"
@@ -77,7 +77,7 @@ function LoginPage() {
           required
         />
 
-        {/* Buton */}
+        {/* Giriş Butonu */}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
@@ -85,6 +85,16 @@ function LoginPage() {
           Giriş Yap
         </button>
       </form>
+
+      {/* Kayıt Ol Butonu */}
+      <div className="fixed bottom-4 right-4">
+        <button
+          onClick={() => (window.location.href = "/register")}
+          className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 text-sm"
+        >
+          Kayıt Ol
+        </button>
+      </div>
     </div>
   );
 }
