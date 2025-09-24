@@ -5,17 +5,7 @@ const RequestsPanel = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [formOpen, setFormOpen] = useState(false);
   const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    kullanan: "",
-    baslangicYer: "",
-    gidilecekYer: "",
-    baslangic: "",
-    son: "",
-    neden: "",
-  });
 
   function parseJwt(token) {
     try {
@@ -53,75 +43,6 @@ const RequestsPanel = () => {
     fetchRequests();
   }, [navigate]);
 
-  const handleRequestSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Lütfen giriş yapın.");
-
-    try {
-      const res = await fetch("https://cardeal-vduj.onrender.com/istek_ekle", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(form)
-      });
-      if (!res.ok) throw new Error("İstek oluşturulamadı.");
-
-      const newRequest = await res.json();
-      setRequests((prev) => [...prev, newRequest]);
-      setFormOpen(false);
-      setForm({
-        kullanan: "",
-        baslangicYer: "",
-        gidilecekYer: "",
-        baslangic: "",
-        son: "",
-        neden: "",
-      });
-      alert("İstek başarıyla oluşturuldu!");
-    } catch (err) {
-      alert("Hata: " + err.message);
-    }
-  };
-
-  const requestAvailableVehicles = async (request) => {
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Lütfen giriş yapın.");
-
-    try {
-      const response = await fetch("https://cardeal-vduj.onrender.com/uygun", {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error("Uygun araçlar alınamadı.");
-      const uygunAraclar = await response.json();
-
-      if (uygunAraclar.length === 0) {
-        alert("Uygun araç bulunamadı.");
-        return;
-      }
-
-      for (const arac of uygunAraclar) {
-        await fetch(
-          `https://cardeal-vduj.onrender.com/istek_olustur/${arac.plaka}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ ...request, sahip: arac.tahsisli || "havuz" })
-          }
-        );
-      }
-
-      alert("✅ Tüm uygun araçlar için istekler oluşturuldu!");
-    } catch (err) {
-      alert("Hata: " + err.message);
-    }
-  };
-
   const handleRequestDelete = async (kullanan) => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Lütfen giriş yapın.");
@@ -156,77 +77,6 @@ const RequestsPanel = () => {
 
       <h2 className="text-2xl font-bold text-green-700">İstekler</h2>
 
-      {/* Form */}
-      {formOpen && (
-        <form
-          onSubmit={handleRequestSubmit}
-          className="border p-4 rounded shadow-md space-y-3 bg-gray-50"
-        >
-          <input
-            type="text"
-            placeholder="Kullanan"
-            value={form.kullanan}
-            onChange={(e) => setForm({ ...form, kullanan: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Başlangıç Yeri"
-            value={form.baslangicYer}
-            onChange={(e) => setForm({ ...form, baslangicYer: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Gidilecek Yer"
-            value={form.gidilecekYer}
-            onChange={(e) => setForm({ ...form, gidilecekYer: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-            required
-          />
-          <input
-            type="datetime-local"
-            placeholder="Başlangıç"
-            value={form.baslangic}
-            onChange={(e) => setForm({ ...form, baslangic: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-            required
-          />
-          <input
-            type="datetime-local"
-            placeholder="Bitiş"
-            value={form.son}
-            onChange={(e) => setForm({ ...form, son: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-            required
-          />
-          <textarea
-            placeholder="Neden"
-            value={form.neden}
-            onChange={(e) => setForm({ ...form, neden: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-            required
-          />
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-            >
-              Oluştur
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormOpen(false)}
-              className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-            >
-              İptal
-            </button>
-          </div>
-        </form>
-      )}
-
       {/* İstek Tablosu */}
       <table className="w-full table-auto border border-gray-300 rounded overflow-hidden">
         <thead className="bg-gray-100">
@@ -249,31 +99,24 @@ const RequestsPanel = () => {
             requests.map((request) => {
               const token = localStorage.getItem("token");
               const payload = token ? parseJwt(token) : { username: "", position: "" };
-              const canReqVehicle =
+              const canDelete =
                 payload.username === request.kullanan ||
                 payload.position === "admin" ||
                 payload.position === "havuz";
 
               return (
-                <tr key={request.id}>
+                <tr key={request.kullanan + request.baslangic}>
                   <td className="px-4 py-2 border">{request.kullanan}</td>
-                  <td className="px-4 py-2 border">{request.yer}</td> {/* Başlangıç Yeri */}
-                  <td className="px-4 py-2 border">{request.gidilecek_yer}</td> {/* Gidilecek Yer */}
+                  <td className="px-4 py-2 border">{request.baslangicYer}</td>
+                  <td className="px-4 py-2 border">{request.gidilecekYer}</td>
                   <td className="px-4 py-2 border">{request.baslangic}</td>
                   <td className="px-4 py-2 border">{request.son}</td>
                   <td className="px-4 py-2 border">{request.neden}</td>
                   <td className="px-4 py-2 border flex gap-2">
                     <button
-                      onClick={() => requestAvailableVehicles(request)}
-                      className={`text-blue-600 hover:text-blue-800 px-2 py-1 border rounded ${!canReqVehicle ? "opacity-50 cursor-not-allowed" : ""}`}
-                      disabled={!canReqVehicle}
-                    >
-                      Uygun Tüm Araçları İste
-                    </button>
-                    <button
                       onClick={() => handleRequestDelete(request.kullanan)}
                       className="text-red-600 hover:text-red-800 px-2 py-1 border rounded"
-                      disabled={!canReqVehicle}
+                      disabled={!canDelete}
                     >
                       Sil
                     </button>
@@ -286,16 +129,14 @@ const RequestsPanel = () => {
       </table>
 
       {/* İstek Ekle Butonu */}
-      {!formOpen && (
-        <div className="fixed bottom-4 right-4">
-          <button
-            onClick={() => setFormOpen(true)}
-            className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 text-sm"
-          >
-            <span className="material-icons">add_circle</span>
-          </button>
-        </div>
-      )}
+      <div className="fixed bottom-4 right-4">
+        <button
+          onClick={() => navigate("/addrequest")}
+          className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 text-sm"
+        >
+          <span className="material-icons">add_circle</span> İstek Ekle
+        </button>
+      </div>
     </div>
   );
 };
