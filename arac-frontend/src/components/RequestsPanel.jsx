@@ -63,6 +63,63 @@ const RequestsPanel = () => {
     }
   };
 
+  const requestAvailableVehicles = async (request) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Lütfen giriş yapın.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch("https://cardeal-vduj.onrender.com/uygun", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error("Uygun araçlar alınamadı.");
+      const uygunAraclar = await response.json();
+      if (uygunAraclar.length === 0) {
+        alert("Uygun araç bulunamadı.");
+        return;
+      }
+
+      for (const arac of uygunAraclar) {
+        const res = await fetch(
+          `https://cardeal-vduj.onrender.com/istek_olustur/${arac.plaka}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              model: arac.model || "Bilinmiyor",
+              marka: arac.marka || "Bilinmiyor",
+              yil: arac.yil || "Bilinmiyor",
+              renk: arac.renk || "Bilinmiyor",
+              plaka: arac.plaka,
+              kullanan: request.kullanan,
+              sahip: arac.tahsisli || "havuz",
+              yer: request.yer || "Bilinmiyor",
+              gidilecek_yer: request.gidilecek_yer || "Bilinmiyor",
+              baslangic: request.baslangic || "Bilinmiyor",
+              son: request.son || "Bilinmiyor",
+              neden: request.neden || "Otomatik istektir",
+              aciliyet: request.aciliyet || "Orta"
+            })
+          }
+        );
+        if (!res.ok) {
+          const err = await res.json();
+          console.error(`Araç ${arac.plaka} için istek oluşturulamadı:`, err.detail);
+        }
+      }
+
+      alert("✅ Tüm uygun araçlar için istekler oluşturuldu!");
+    } catch (err) {
+      alert("Hata: " + err.message);
+    }
+  };
+
   if (loading) return <div className="text-center text-gray-500">Veriler yükleniyor...</div>;
   if (error) return <div className="text-center text-red-500">Hata: {error}</div>;
 
@@ -77,7 +134,6 @@ const RequestsPanel = () => {
 
       <h2 className="text-2xl font-bold text-green-700">İstekler</h2>
 
-      {/* İstek Tablosu */}
       <table className="w-full table-auto border border-gray-300 rounded overflow-hidden">
         <thead className="bg-gray-100">
           <tr>
@@ -99,11 +155,11 @@ const RequestsPanel = () => {
             requests.map((request) => {
               const token = localStorage.getItem("token");
               const payload = token ? parseJwt(token) : { username: "", position: "" };
-              const canDelete =
+              const canAct =
                 payload.username === request.kullanan ||
                 payload.position === "admin" ||
                 payload.position === "havuz";
-        
+
               return (
                 <tr key={request.kullanan + request.baslangic}>
                   <td className="px-4 py-2 border">{request.kullanan}</td>
@@ -114,9 +170,16 @@ const RequestsPanel = () => {
                   <td className="px-4 py-2 border">{request.neden}</td>
                   <td className="px-4 py-2 border flex gap-2">
                     <button
+                      onClick={() => requestAvailableVehicles(request)}
+                      className={`text-blue-600 hover:text-blue-800 px-2 py-1 border rounded ${!canAct ? "opacity-50 cursor-not-allowed" : ""}`}
+                      disabled={!canAct}
+                    >
+                      Uygun Araçları İste
+                    </button>
+                    <button
                       onClick={() => handleRequestDelete(request.kullanan)}
                       className="text-red-600 hover:text-red-800 px-2 py-1 border rounded"
-                      disabled={!canDelete}
+                      disabled={!canAct}
                     >
                       Sil
                     </button>
@@ -128,10 +191,9 @@ const RequestsPanel = () => {
         </tbody>
       </table>
 
-      {/* İstek Ekle Butonu */}
       <div className="fixed bottom-4 right-4">
         <button
-          onClick={() => navigate("/request")}
+          onClick={() => navigate("/addrequest")}
           className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 text-sm"
         >
           <span className="material-icons">add_circle</span> İstek Ekle
