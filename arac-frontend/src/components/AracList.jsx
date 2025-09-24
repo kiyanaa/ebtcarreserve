@@ -7,8 +7,8 @@ const AracList = React.memo(function AracList() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Token ve payload kontrolü güvenli hale getirildi
   const token = localStorage.getItem("token") || "";
+
   const getTokenPayload = (token) => {
     if (!token) return null;
     try {
@@ -17,12 +17,23 @@ const AracList = React.memo(function AracList() {
       return null;
     }
   };
-  const payload = getTokenPayload(token);
-  const userPosition = payload?.position || "";
-  const currentUser = payload?.username || "";
-  const canEdit = userPosition === "admin" || userPosition === "havuz";
 
+  const payload = getTokenPayload(token);
+  const currentUser = payload?.username || "";
+  const userPosition = payload?.position || "";
+  const canEdit = ["admin", "havuz"].includes(userPosition);
+
+  // Token ve payload kontrolü
   useEffect(() => {
+    if (!token || !payload || !payload.username || (payload.exp && payload.exp < Math.floor(Date.now() / 1000))) {
+      localStorage.removeItem("token");
+      navigate("/login");
+      return;
+    }
+
+    // Payload username alert
+    alert("Payload username: " + payload.username);
+
     const fetchVehicles = async () => {
       try {
         const response = await fetch("https://cardeal-vduj.onrender.com/araclar", {
@@ -48,11 +59,10 @@ const AracList = React.memo(function AracList() {
     };
 
     fetchVehicles();
-  }, [token]);
+  }, [token, payload, navigate]);
 
   const handleDeleteVehicle = async (plaka) => {
     if (!window.confirm(`Aracı silmek istediğinize emin misiniz? Plaka: ${plaka}`)) return;
-
     try {
       const response = await fetch(`https://cardeal-vduj.onrender.com/araclar/${plaka}`, {
         method: "DELETE",
@@ -219,7 +229,7 @@ const AracList = React.memo(function AracList() {
         </tbody>
       </table>
 
-      <div className="fixed bottom-4 right-4">
+      <div className="fixed bottom-4 right-4 flex">
         <button
           onClick={handleAddVehicle}
           className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 text-sm"
