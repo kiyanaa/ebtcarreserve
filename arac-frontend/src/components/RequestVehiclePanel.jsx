@@ -1,21 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const RequestsPanel = () => {
+// JWT payload'ı decode etmek için basit fonksiyon
+function parseJwt(token) {
+  try {
+    const base64Payload = token.split('.')[1];
+    const payload = atob(base64Payload);
+    return JSON.parse(payload);
+  } catch (e) {
+    return {};
+  }
+}
+
+const RequestVehiclePanel = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  function parseJwt(token) {
-    try {
-      const payloadBase64 = token.split('.')[1];
-      return JSON.parse(atob(payloadBase64));
-    } catch (e) {
-      console.error("Token parse edilemedi:", e);
-      return null;
-    }
-  }
+  // Kullanıcının username'i token'dan alınıyor
+  const [currentUser, setCurrentUser] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -25,12 +29,17 @@ const RequestsPanel = () => {
       return;
     }
 
+    const decoded = parseJwt(token);
+    const username = decoded.username || decoded.user || "";
+    const position = decoded.position;
+    setCurrentUser(username);
     const fetchRequests = async () => {
       try {
-        const response = await fetch("https://cardeal-vduj.onrender.com/istekler", {
-          headers: { "Authorization": `Bearer ${token}` }
+        const response = await fetch("http://localhost:8000/istek_araclar", {
+          headers: { "Authorization": `Bearer ${token}` },
         });
         if (!response.ok) throw new Error("Veri alırken bir hata oluştu");
+
         const data = await response.json();
         setRequests(data);
       } catch (err) {
@@ -43,27 +52,14 @@ const RequestsPanel = () => {
     fetchRequests();
   }, [navigate]);
 
-  const handleRequestDelete = async (kullanan) => {
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Lütfen giriş yapın.");
+  if (loading) return <div className="text-center text-gray-500">Veriler yükleniyor...</div>;
+  if (error) return <div className="text-center text-red-500">Hata: {error}</div>;
 
-    if (!window.confirm(`İsteği silmek istediğinize emin misiniz? Kullanıcı: ${kullanan}`)) return;
-
-    try {
-      const res = await fetch(
-        `https://cardeal-vduj.onrender.com/istek_sil?kullanan=${encodeURIComponent(kullanan)}`,
-        { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } }
-      );
-      if (!res.ok) throw new Error("İstek silinirken hata oluştu.");
-
-      setRequests((prev) => prev.filter((r) => r.kullanan !== kullanan));
-      alert("İstek silindi!");
-    } catch (err) {
-      alert("Hata: " + err.message);
-    }
+  const handle_request_vehicle = () => {
+    navigate("/AracList");
   };
 
-  const requestAvailableVehicles = async (request) => {
+  const handleConfirmRequest = async (request) => {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Lütfen giriş yapın.");
@@ -71,115 +67,148 @@ const RequestsPanel = () => {
       return;
     }
 
+    const confirmAction = window.confirm(
+      `İsteği onaylamak istediğinize emin misiniz?\nKullanıcı: ${request.kullanan}\nPlaka: ${request.plaka}`
+    );
+    if (!confirmAction) return;
     try {
-      const response = await fetch("https://cardeal-vduj.onrender.com/uygun", {
-        headers: { "Authorization": `Bearer ${token}` }
+      const response = await fetch(`http://localhost:8000/arac_guncelle/${request.plaka}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          durum: "kullanımda",
+          kullanan: request.kullanan,
+          sahip: request.tahsisli || "havuz", // ✅ Token'dan alınan sahip bilgisi
+          baslangic: request.baslangic,
+          son: request.son,
+          yer: request.yer
+        }),
       });
-      if (!response.ok) throw new Error("Uygun araçlar alınamadı.");
-      const uygunAraclar = await response.json();
-      if (uygunAraclar.length === 0) {
-        alert("Uygun araç bulunamadı.");
-        return;
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.detail || "Araç güncellenemedi");
       }
 
-      for (const arac of uygunAraclar) {
-        const res = await fetch(
-          `https://cardeal-vduj.onrender.com/istek_olustur/${arac.plaka}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              model: arac.model || "Bilinmiyor",
-              marka: arac.marka || "Bilinmiyor",
-              yil: arac.yil || "Bilinmiyor",
-              renk: arac.renk || "Bilinmiyor",
-              plaka: arac.plaka,
-              kullanan: request.kullanan,
-              sahip: arac.tahsisli || "havuz",
-              yer: request.yer || "Bilinmiyor",
-              gidilecek_yer: request.gidilecek_yer || "Bilinmiyor",
-              baslangic: request.baslangic || "Bilinmiyor",
-              son: request.son || "Bilinmiyor",
-              neden: request.neden || "Otomatik istektir",
-              aciliyet: request.aciliyet || "Orta"
-            })
-          }
-        );
-        if (!res.ok) {
-          const err = await res.json();
-          console.error(`Araç ${arac.plaka} için istek oluşturulamadı:`, err.detail);
-        }
-      }
+      // İstek kaydını sil
+      await fetch(`http://localhost:8000/istek_sil_tumu/${request.kullanan}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` },
+      });
+      await fetch(`http://localhost:8000/istek_sil_plaka/${request.plaka}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` },
+      });
 
-      alert("✅ Tüm uygun araçlar için istekler oluşturuldu!");
-    } catch (err) {
-      alert("Hata: " + err.message);
+      setRequests(prev => prev.filter(r => r.kullanan !== request.kullanan && r.plaka !== request.plaka));
+      alert("Araç başarılı bir şekilde kullanımda olarak atandı!");
+    } catch (error) {
+      alert(`Hata: ${error.message}`);
     }
   };
 
-  if (loading) return <div className="text-center text-gray-500">Veriler yükleniyor...</div>;
-  if (error) return <div className="text-center text-red-500">Hata: {error}</div>;
+  const handleRequestDelete = async (kullanan, plaka) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Lütfen giriş yapın.");
+      navigate("/login");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `İsteği silmek istediğinize emin misiniz? Kullanıcı: ${kullanan}, Plaka: ${plaka}`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(`http://localhost:8000/istek_arac_sil`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ kullanan, plaka }),
+      });
+
+      if (!response.ok) throw new Error("İstek silinirken bir hata oluştu.");
+
+      setRequests(prev =>
+        prev.filter(req => !(req.kullanan === kullanan && req.plaka === plaka))
+      );
+    } catch (error) {
+      alert(`Hata: ${error.message}`);
+    }
+  };
 
   return (
-    <div className="space-y-6 p-4">
+    <div className="space-y-6">
       <button
         onClick={() => navigate("/")}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
       >
         Geri
       </button>
 
       <h2 className="text-2xl font-bold text-green-700">İstekler</h2>
-
-      <table className="w-full table-auto border border-gray-300 rounded overflow-hidden">
-        <thead className="bg-gray-100">
+      <table className="w-full table-auto border-collapse">
+        <thead>
           <tr>
-            <th className="px-4 py-2 border">Kullanan</th>
-            <th className="px-4 py-2 border">Başlangıç Yeri</th>
-            <th className="px-4 py-2 border">Gidilecek Yer</th>
-            <th className="px-4 py-2 border">Başlangıç</th>
-            <th className="px-4 py-2 border">Bitiş</th>
-            <th className="px-4 py-2 border">Neden</th>
-            <th className="px-4 py-2 border">Aksiyonlar</th>
+            <th>Marka</th>
+            <th>Model</th>
+            <th>Yıl</th>
+            <th>Renk</th>
+            <th>Plaka</th>
+            <th>Kullanan</th>
+            <th>Sahip</th>
+            <th>Başlangıç</th>
+            <th>Son</th>
+            <th>Aksiyonlar</th>
           </tr>
         </thead>
         <tbody>
           {requests.length === 0 ? (
             <tr>
-              <td colSpan="7" className="text-center py-4">İstek yok</td>
+              <td colSpan="10" className="text-center">İstek bulunamadı</td>
             </tr>
           ) : (
-            requests.map((request) => {
+            requests.map(request => {
               const token = localStorage.getItem("token");
-              const payload = token ? parseJwt(token) : { username: "", position: "" };
-              const canAct =
-                payload.username === request.kullanan ||
-                payload.position === "admin" ||
-                payload.position === "havuz";
+              const decoded = parseJwt(token);
+              const currentUser = decoded.username;
+              const pozisyon = decoded.position;
+
+              // canConfirm değişkeni
+              const canConfirm = (
+                (request.sahip === "havuz" && (pozisyon === "admin" || pozisyon === "havuz")) ||
+                (request.sahip !== "havuz" && (currentUser === request.sahip || pozisyon === "admin"))
+              );
 
               return (
-                <tr key={request.kullanan + request.baslangic}>
-                  <td className="px-4 py-2 border">{request.kullanan}</td>
-                  <td className="px-4 py-2 border">{request.yer}</td>
-                  <td className="px-4 py-2 border">{request.gidilecek_yer}</td>
-                  <td className="px-4 py-2 border">{request.baslangic}</td>
-                  <td className="px-4 py-2 border">{request.son}</td>
-                  <td className="px-4 py-2 border">{request.neden}</td>
-                  <td className="px-4 py-2 border flex gap-2">
+                <tr key={`${request.plaka}-${request.kullanan}`}>
+                  <td>{request.marka}</td>
+                  <td>{request.model}</td>
+                  <td>{request.yil}</td>
+                  <td>{request.renk}</td>
+                  <td>{request.plaka}</td>
+                  <td>{request.kullanan}</td>
+                  <td>{request.sahip}</td>
+                  <td>{request.baslangic}</td>
+                  <td>{request.son}</td>
+                  <td>
+                    {canConfirm && (
+                      <button
+                        onClick={() => handleConfirmRequest(request)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        Onay Ver
+                      </button>
+                    )}
                     <button
-                      onClick={() => requestAvailableVehicles(request)}
-                      className={`text-blue-600 hover:text-blue-800 px-2 py-1 border rounded ${!canAct ? "opacity-50 cursor-not-allowed" : ""}`}
-                      disabled={!canAct}
-                    >
-                      Uygun Araçları İste
-                    </button>
-                    <button
-                      onClick={() => handleRequestDelete(request.kullanan)}
-                      className="text-red-600 hover:text-red-800 px-2 py-1 border rounded"
-                      disabled={!canAct}
+                      onClick={() => handleRequestDelete(request.kullanan, request.plaka)}
+                      className="ml-2 text-red-600 hover:text-red-800"
                     >
                       Sil
                     </button>
@@ -193,14 +222,14 @@ const RequestsPanel = () => {
 
       <div className="fixed bottom-4 right-4">
         <button
-          onClick={() => navigate("/addrequest")}
+          onClick={handle_request_vehicle}
           className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 text-sm"
         >
-          <span className="material-icons">add_circle</span> İstek Ekle
+          <span className="material-icons">add_circle</span> 
         </button>
       </div>
     </div>
   );
 };
 
-export default RequestsPanel;
+export default RequestVehiclePanel;
