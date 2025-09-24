@@ -10,7 +10,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        kariyerBlue: '#CFE2F3',  // your custom color
+        kariyerBlue: '#ffffffff',  // your custom color
         // Add more custom colors here
       },
       spacing: {
