@@ -42,7 +42,7 @@ export default function UpdateVehiclePage() {
     const fetchVehicle = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/araclar/${encodeURIComponent(plaka)}`,
+          `https://cardeal-vduj.onrender.com/araclar/${encodeURIComponent(plaka)}`,
           {
             headers: { "Authorization": `Bearer ${token}` } // ✅ Token eklendi
           }
@@ -88,7 +88,7 @@ export default function UpdateVehiclePage() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/arac_guncelle/${encodeURIComponent(updateForm.plaka)}`,
+        `https://cardeal-vduj.onrender.com/arac_guncelle/${encodeURIComponent(updateForm.plaka)}`,
         {
           method: "PUT",
           headers: { 

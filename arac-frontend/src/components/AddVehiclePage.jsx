@@ -31,7 +31,7 @@ export default function AddVehiclePage() {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/arac_ekle", {
+      const response = await fetch("https://cardeal-vduj.onrender.com/arac_ekle", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

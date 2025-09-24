@@ -31,7 +31,7 @@ const RequestsPanel = () => {
     const currentUser = parseJwt(token);
     const fetchRequests = async () => {
       try {
-        const response = await fetch("http://localhost:8000/istekler", {
+        const response = await fetch("https://cardeal-vduj.onrender.com/istekler", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (!response.ok) throw new Error("Veri alırken bir hata oluştu");
@@ -67,7 +67,7 @@ const RequestsPanel = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/istek_sil?kullanan=${encodeURIComponent(kullanan)}`,
+        `https://cardeal-vduj.onrender.com/istek_sil?kullanan=${encodeURIComponent(kullanan)}`,
         {
           method: "DELETE",
           headers: { "Authorization": `Bearer ${token}` }
@@ -91,7 +91,7 @@ const RequestsPanel = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/uygun", {
+      const response = await fetch("https://cardeal-vduj.onrender.com/uygun", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (!response.ok) throw new Error("Uygun araçlar alınamadı.");
@@ -104,7 +104,7 @@ const RequestsPanel = () => {
 
       for (const arac of uygunAraclar) {
         const res = await fetch(
-          `http://localhost:8000/istek_olustur/${arac.plaka}`,
+          `https://cardeal-vduj.onrender.com/istek_olustur/${arac.plaka}`,
           {
             method: "PUT",
             headers: {

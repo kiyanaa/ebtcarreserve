@@ -21,7 +21,7 @@ export default function RegisterPage() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:8000/register", {
+      const res = await fetch("https://cardeal-vduj.onrender.com/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)

@@ -40,7 +40,7 @@ export default function ReleaseVehiclePage() {
     const fetchVehicle = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/araclar/${encodeURIComponent(plaka)}`,
+          `https://cardeal-vduj.onrender.com/araclar/${encodeURIComponent(plaka)}`,
           { headers: { "Authorization": `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Araç bilgisi alınamadı.");
@@ -79,7 +79,7 @@ export default function ReleaseVehiclePage() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/iade`,
+        `https://cardeal-vduj.onrender.com/iade`,
         {
           method: "POST",
           headers: { 

@@ -65,7 +65,7 @@ export default function RequestVehiclePage() {
     const fetchVehicle = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/araclar/${encodeURIComponent(plaka)}`,
+          `https://cardeal-vduj.onrender.com/araclar/${encodeURIComponent(plaka)}`,
           {
             headers: { "Authorization": `Bearer ${token}` }
           }
@@ -106,7 +106,7 @@ export default function RequestVehiclePage() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/istek_olustur/${encodeURIComponent(plaka)}`,
+        `https://cardeal-vduj.onrender.com/istek_olustur/${encodeURIComponent(plaka)}`,
         {
           method: "PUT",
           headers: { 
