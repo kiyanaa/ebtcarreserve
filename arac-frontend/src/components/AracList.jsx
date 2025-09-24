@@ -7,16 +7,25 @@ const AracList = React.memo(function AracList() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Örnek token
+  // Token ve payload kontrolü güvenli hale getirildi
   const token = localStorage.getItem("token") || "";
-  const userPosition = token ? JSON.parse(atob(token.split(".")[1])).position : "";
+  const getTokenPayload = (token) => {
+    if (!token) return null;
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch {
+      return null;
+    }
+  };
+  const payload = getTokenPayload(token);
+  const userPosition = payload?.position || "";
+  const currentUser = payload?.username || "";
   const canEdit = userPosition === "admin" || userPosition === "havuz";
-  const currentUser = token ? JSON.parse(atob(token.split(".")[1])).username : "";
 
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch("http://localhost:8000/araclar", {
+        const response = await fetch("https://cardeal-vduj.onrender.com/araclar", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) throw new Error("Veriler alınamadı");
@@ -45,7 +54,7 @@ const AracList = React.memo(function AracList() {
     if (!window.confirm(`Aracı silmek istediğinize emin misiniz? Plaka: ${plaka}`)) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/araclar/${plaka}`, {
+      const response = await fetch(`https://cardeal-vduj.onrender.com/araclar/${plaka}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -60,7 +69,7 @@ const AracList = React.memo(function AracList() {
 
   const handleTakeVehicle = async (vehicle) => {
     try {
-      const response = await fetch(`http://localhost:8000/uzerine_al/${vehicle.plaka}`, {
+      const response = await fetch(`https://cardeal-vduj.onrender.com/uzerine_al/${vehicle.plaka}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,8 +101,7 @@ const AracList = React.memo(function AracList() {
   const handleRequestVehicle = (plaka) => navigate("/requestvehicle", { state: { plaka } });
   const handleAddVehicle = () => navigate("/addvehicle");
   const handleReleaseVehicle = (plaka) => navigate("/releasevehicle", { state: { plaka } });
-  const handlereserved = (plaka) => navigate("/reserve", {state: {plaka}});
-  
+  const handlereserved = (plaka) => navigate("/reserve", { state: { plaka } });
 
   if (loading) return <div className="text-center text-gray-500">Veriler yükleniyor...</div>;
   if (error) return <div className="text-center text-red-500">Hata: {error}</div>;
@@ -131,11 +139,11 @@ const AracList = React.memo(function AracList() {
                 a.kullanan === currentUser ||
                 a.tahsisli === currentUser ||
                 ["admin", "havuz"].includes(userPosition);
-              
+
               const canTake =
-                (a.tahsisli === currentUser &&
-                a.durum === "kullanımda") ||
-                ["admin", "havuz"].includes(userPosition)
+                (a.tahsisli === currentUser && a.durum === "kullanımda") ||
+                ["admin", "havuz"].includes(userPosition);
+
               return (
                 <tr key={a.plaka} className="border-t hover:bg-gray-50">
                   <td className="px-2 py-1">{a.marka || "-"}</td>
@@ -168,7 +176,7 @@ const AracList = React.memo(function AracList() {
                       </button>
                     )}
 
-                    {(a.durum.toLowerCase() === "uygun") && (
+                    {a.durum.toLowerCase() === "uygun" && (
                       <button
                         className="px-2 py-1 bg-yellow-600 text-white rounded text-xs hover:bg-yellow-700 ml-2"
                         onClick={() => handleRequestVehicle(a.plaka)}
@@ -177,7 +185,7 @@ const AracList = React.memo(function AracList() {
                       </button>
                     )}
 
-                    {(a.durum.toLowerCase() ==="kullanımda")&&(
+                    {a.durum.toLowerCase() === "kullanımda" && (
                       <button
                         className="px-2 py-1 bg-yellow-600 text-white rounded text-xs hover:bg-yellow-700 ml-2"
                         onClick={() => handlereserved(a.plaka)}
@@ -204,7 +212,6 @@ const AracList = React.memo(function AracList() {
                       </button>
                     )}
                   </td>
-
                 </tr>
               );
             })
