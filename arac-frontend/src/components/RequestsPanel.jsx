@@ -156,6 +156,77 @@ const RequestsPanel = () => {
 
       <h2 className="text-2xl font-bold text-green-700">İstekler</h2>
 
+      {/* Form */}
+      {formOpen && (
+        <form
+          onSubmit={handleRequestSubmit}
+          className="border p-4 rounded shadow-md space-y-3 bg-gray-50"
+        >
+          <input
+            type="text"
+            placeholder="Kullanan"
+            value={form.kullanan}
+            onChange={(e) => setForm({ ...form, kullanan: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Başlangıç Yeri"
+            value={form.baslangicYer}
+            onChange={(e) => setForm({ ...form, baslangicYer: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Gidilecek Yer"
+            value={form.gidilecekYer}
+            onChange={(e) => setForm({ ...form, gidilecekYer: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+            required
+          />
+          <input
+            type="datetime-local"
+            placeholder="Başlangıç"
+            value={form.baslangic}
+            onChange={(e) => setForm({ ...form, baslangic: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+            required
+          />
+          <input
+            type="datetime-local"
+            placeholder="Bitiş"
+            value={form.son}
+            onChange={(e) => setForm({ ...form, son: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+            required
+          />
+          <textarea
+            placeholder="Neden"
+            value={form.neden}
+            onChange={(e) => setForm({ ...form, neden: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+            required
+          />
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              Oluştur
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormOpen(false)}
+              className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+            >
+              İptal
+            </button>
+          </div>
+        </form>
+      )}
+
       {/* İstek Tablosu */}
       <table className="w-full table-auto border border-gray-300 rounded overflow-hidden">
         <thead className="bg-gray-100">
@@ -213,6 +284,7 @@ const RequestsPanel = () => {
           )}
         </tbody>
       </table>
+
       {/* İstek Ekle Butonu */}
       {!formOpen && (
         <div className="fixed bottom-4 right-4">
@@ -227,3 +299,5 @@ const RequestsPanel = () => {
     </div>
   );
 };
+
+export default RequestsPanel;
