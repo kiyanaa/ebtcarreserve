@@ -24,6 +24,13 @@ export default function ReleaseVehiclePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Lütfen giriş yapın.");
+      navigate("/login");
+      return;
+    }
+
     if (!plaka) {
       setError("❌ Plaka bilgisi alınamadı.");
       setLoading(false);
@@ -33,7 +40,8 @@ export default function ReleaseVehiclePage() {
     const fetchVehicle = async () => {
       try {
         const response = await fetch(
-          `https://cardeal-vduj.onrender.com/araclar/${encodeURIComponent(plaka)}`
+          `http://localhost:8000/araclar/${encodeURIComponent(plaka)}`,
+          { headers: { "Authorization": `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Araç bilgisi alınamadı.");
 
@@ -57,17 +65,27 @@ export default function ReleaseVehiclePage() {
     };
 
     fetchVehicle();
-  }, [plaka]);
+  }, [plaka, navigate]);
 
   const handleSubmit = async e => {
     e.preventDefault();
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Lütfen giriş yapın.");
+      navigate("/login");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `https://cardeal-vduj.onrender.com/iade`,
+        `http://localhost:8000/iade`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` 
+          },
           body: JSON.stringify({
             marka: releaseForm.marka,
             model: releaseForm.model,

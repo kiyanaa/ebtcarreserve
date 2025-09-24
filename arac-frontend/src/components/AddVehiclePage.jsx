@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import VehicleForm from "../components/AddVehicleForm";
 
 export default function AddVehiclePage() {
@@ -22,40 +22,36 @@ export default function AddVehiclePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Lütfen giriş yapın.");
+      navigate("/login");
+      return;
+    }
+
     try {
-      const response = await fetch("https://cardeal-vduj.onrender.com/arac_ekle", {
+      const response = await fetch("http://localhost:8000/arac_ekle", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // ✅ Token header olarak eklendi
         },
-        body: JSON.stringify({
-          marka: vehicleForm.marka,
-          model: vehicleForm.model,
-          yil: vehicleForm.yil,
-          renk: vehicleForm.renk,
-          plaka: vehicleForm.plaka,
-          yer: vehicleForm.yer,
-          kullanan: vehicleForm.kullanan,
-          baslangic: vehicleForm.baslangic,
-          son: vehicleForm.son,
-          durum: vehicleForm.durum,
-          tahsis: vehicleForm.tahsis,
-          tahsisli: vehicleForm.tahsisli
-        })
+        body: JSON.stringify(vehicleForm)
       });
+
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error("Araç eklenirken bir hata oluştu.");
+        throw new Error(result.message || "Araç eklenirken bir hata oluştu.");
       }
 
       alert("Araç başarıyla eklendi.");
-      navigate("/AracList"); // dikkat: route ismin doğru mu kontrol et
+      navigate("/AracList"); 
     } catch (err) {
       alert(`Hata: ${err.message}`);
     }
   };
-
 
   return (
     <div className="p-6">
@@ -63,7 +59,7 @@ export default function AddVehiclePage() {
       <VehicleForm
         vehicleForm={vehicleForm}
         setVehicleForm={setVehicleForm}
-        onSubmit={handleSubmit} // handleSubmit artık doğru şekilde bağlandı
+        onSubmit={handleSubmit}
         isUpdate={false}
       />
     </div>

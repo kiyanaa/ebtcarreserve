@@ -8,25 +8,29 @@ export default function AddRequestForm({ requestForm, setRequestForm, onSubmit }
       [name]: value
     }));
   };
+  const token = localStorage.getItem("token") || "";
+  const userPosition = token ? JSON.parse(atob(token.split(".")[1])).position : "";
+  const showKullanan = userPosition === "admin" || userPosition === "havuz";
 
   return (
     <form onSubmit={onSubmit} className="p-2">
       <h3 className="font-semibold text-lg text-gray-700 mb-2">İstek Formu</h3>
 
       <div className="flex flex-wrap gap-4">
-        <input
-          required
-          name="kullanan"
-          placeholder="Kullanan"
-          value={requestForm.kullanan}
-          onChange={handleChange}
-          className="p-2 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400"
-        />
-
+        {showKullanan && (
+          <input
+            required
+            name="kullanan"
+            placeholder="Kullanan"
+            value={requestForm.kullanan}
+            onChange={handleChange}
+            className="p-2 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400"
+          />
+        )}
         <input
           required
           name="yer"
-          placeholder="Yer"
+          placeholder="Başlangıç Yeri"
           value={requestForm.yer}
           onChange={handleChange}
           className="p-2 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400"

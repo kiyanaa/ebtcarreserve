@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build:css": "npx tailwindcss -i ./src/index.css -o ./src/tailwind.output.css --minify",
-    "start": "vite",
+    "start": "nodemon server.js",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",

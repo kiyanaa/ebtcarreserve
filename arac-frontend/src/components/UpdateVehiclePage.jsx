@@ -26,8 +26,14 @@ export default function UpdateVehiclePage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Lütfen giriş yapın.");
+      navigate("/login");
+      return;
+    }
+
     if (!plaka) {
-      // If no plaka passed, redirect back to /araclist
       alert("❌ Geçerli bir plaka bilgisi alınamadı. Araç listesine yönlendiriliyorsunuz.");
       navigate("/araclist");
       return;
@@ -35,7 +41,13 @@ export default function UpdateVehiclePage() {
 
     const fetchVehicle = async () => {
       try {
-        const response = await fetch(`https://cardeal-vduj.onrender.com/araclar/${encodeURIComponent(plaka)}`);
+        const response = await fetch(
+          `http://localhost:8000/araclar/${encodeURIComponent(plaka)}`,
+          {
+            headers: { "Authorization": `Bearer ${token}` } // ✅ Token eklendi
+          }
+        );
+
         if (!response.ok) throw new Error("Araç bilgisi alınamadı.");
 
         const data = await response.json();
@@ -67,11 +79,22 @@ export default function UpdateVehiclePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Lütfen giriş yapın.");
+      navigate("/login");
+      return;
+    }
+
     try {
-      const response = await fetch(`https://cardeal-vduj.onrender.com/arac_guncelle/${encodeURIComponent(updateForm.plaka)}`,
+      const response = await fetch(
+        `http://localhost:8000/arac_guncelle/${encodeURIComponent(updateForm.plaka)}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` // ✅ Token eklendi
+          },
           body: JSON.stringify({
             yer: updateForm.yer,
             kullanan: updateForm.kullanan,

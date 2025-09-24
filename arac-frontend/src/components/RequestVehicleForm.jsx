@@ -3,25 +3,26 @@ export default function RequestForm({ requestForm, setRequestForm, onSubmit }) {
     <form onSubmit={onSubmit} className="space-y-3">
       <h3 className="font-semibold text-lg text-gray-700">📋 İstek Oluştur</h3>
       
+      {/* Sahip alanı, sadece okunabilir */}
+      <input
+        placeholder="Sahip"
+        value={requestForm.sahip || "Havuz"}
+        readOnly
+        disabled
+        className="w-full p-2 border rounded-lg bg-gray-100 cursor-not-allowed focus:ring-2 focus:ring-yellow-400"
+      />
+
       <input
         required
         placeholder="Plaka"
+        disabled
         value={requestForm.plaka}
         onChange={e =>
           setRequestForm(s => ({ ...s, plaka: e.target.value }))
         }
         className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400"
       />
-      <input
-        required
-        placeholder="Kullanan"
-        value={requestForm.kullanan}
-        onChange={e =>
-          setRequestForm(s => ({ ...s, kullanan: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400"
-      />
-
+      
       <input
         placeholder="Bulunduğu yer"
         value={requestForm.yer}
