@@ -1,102 +1,158 @@
-// components/LoginPage.jsx
+// components/AuthPage.jsx
 import React, { useState } from "react";
 
-function LoginPage() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+export default function AuthPage() {
+  // Login state
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginMessage, setLoginMessage] = useState("");
 
+  // Register state
+  const [regUsername, setRegUsername] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regDepartment, setRegDepartment] = useState("");
+  const [registerMessage, setRegisterMessage] = useState("");
+
+  // Login handler
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoginMessage("");
 
     const formData = new URLSearchParams();
     formData.append("grant_type", "password");
-    formData.append("username", username);
-    formData.append("password", password);
+    formData.append("username", loginUsername);
+    formData.append("password", loginPassword);
 
     try {
       const response = await fetch("https://cardeal-vduj.onrender.com/token", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formData.toString(),
       });
 
-      if (!response.ok) {
-        throw new Error("Sunucu hatası veya giriş başarısız");
-      }
+      if (!response.ok) throw new Error("Giriş başarısız");
 
       const data = await response.json();
-
       if (data.access_token) {
         localStorage.setItem("token", data.access_token);
-        alert("Giriş başarılı!");
+        setLoginMessage("Giriş başarılı!");
         window.location.href = "/";
       } else {
-        alert("Hatalı kullanıcı adı veya şifre!");
+        setLoginMessage("Hatalı kullanıcı adı veya şifre!");
       }
     } catch (err) {
       console.error(err);
-      alert("Giriş yapılırken bir hata oluştu!");
+      setLoginMessage("Sunucuya ulaşılamıyor!");
+    }
+  };
+
+  // Register handler
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setRegisterMessage("");
+
+    try {
+      const res = await fetch("https://cardeal-vduj.onrender.com/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: regUsername,
+          password: regPassword,
+          department: regDepartment,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) setRegisterMessage(data.detail || "Kayıt başarısız");
+      else {
+        setRegisterMessage("Kayıt başarılı: " + data.user.username);
+        setRegUsername("");
+        setRegPassword("");
+        setRegDepartment("");
+      }
+    } catch (err) {
+      console.error(err);
+      setRegisterMessage("Sunucuya ulaşılamıyor!");
     }
   };
 
   return (
-    <div className="relative flex items-center justify-center h-screen bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-8 rounded-xl shadow-md w-80 flex flex-col gap-4 text-center"
-      >
-        <h2 className="text-2xl font-bold mb-4">Giriş Yap</h2>
-
-        {/* Kullanıcı adı */}
-        <label htmlFor="username" className="text-left font-medium">
-          Kullanıcı Adı
-        </label>
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full px-3 py-2 border border-red-500 rounded"
-          placeholder="Kullanıcı Adı"
-          required
-        />
-
-        {/* Şifre */}
-        <label htmlFor="password" className="text-left font-medium">
-          Şifre
-        </label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 border border-red-500 rounded"
-          placeholder="Şifre"
-          required
-        />
-
-        {/* Giriş Butonu */}
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="flex gap-12">
+        {/* Login Form */}
+        <form
+          onSubmit={handleLogin}
+          className="bg-white p-8 rounded-xl shadow-md w-80 flex flex-col gap-4"
         >
-          Giriş Yap
-        </button>
-      </form>
+          <h2 className="text-2xl font-bold text-center text-gray-700">Giriş Yap</h2>
+          <label className="text-left font-medium">Kullanıcı Adı</label>
+          <input
+            type="text"
+            value={loginUsername}
+            onChange={(e) => setLoginUsername(e.target.value)}
+            placeholder="Kullanıcı Adı"
+            required
+            className="w-full px-3 py-2 border border-red-500 rounded"
+          />
+          <label className="text-left font-medium">Şifre</label>
+          <input
+            type="password"
+            value={loginPassword}
+            onChange={(e) => setLoginPassword(e.target.value)}
+            placeholder="Şifre"
+            required
+            className="w-full px-3 py-2 border border-red-500 rounded"
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          >
+            Giriş Yap
+          </button>
+          {loginMessage && <p className="text-sm text-red-500 text-center">{loginMessage}</p>}
+        </form>
 
-      {/* Kayıt Ol Butonu */}
-      <div className="fixed bottom-4 right-4">
-        <button
-          onClick={() => (window.location.href = "/register")}
-          className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 text-sm"
+        {/* Register Form */}
+        <form
+          onSubmit={handleRegister}
+          className="bg-white p-8 rounded-xl shadow-md w-80 flex flex-col gap-4"
         >
-          Kayıt Ol
-        </button>
+          <h2 className="text-2xl font-bold text-center text-gray-700">Kayıt Ol</h2>
+          <label className="text-left font-medium">Kullanıcı Adı</label>
+          <input
+            type="text"
+            value={regUsername}
+            onChange={(e) => setRegUsername(e.target.value)}
+            placeholder="Kullanıcı Adı"
+            required
+            className="w-full px-3 py-2 border border-red-500 rounded"
+          />
+          <label className="text-left font-medium">Şifre</label>
+          <input
+            type="password"
+            value={regPassword}
+            onChange={(e) => setRegPassword(e.target.value)}
+            placeholder="Şifre"
+            required
+            className="w-full px-3 py-2 border border-red-500 rounded"
+          />
+          <label className="text-left font-medium">Departman (Opsiyonel)</label>
+          <input
+            type="text"
+            value={regDepartment}
+            onChange={(e) => setRegDepartment(e.target.value)}
+            placeholder="Departman"
+            className="w-full px-3 py-2 border border-red-500 rounded"
+          />
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+          >
+            Kayıt Ol
+          </button>
+          {registerMessage && <p className="text-sm text-red-500 text-center">{registerMessage}</p>}
+        </form>
       </div>
     </div>
   );
 }
-
-export default LoginPage;
