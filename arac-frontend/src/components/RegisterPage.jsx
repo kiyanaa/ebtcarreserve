@@ -25,18 +25,23 @@ export default function RegisterPage() {
       );
       return JSON.parse(jsonPayload);
     } catch (e) {
-      return null;
+      return null; // hatalı token
     }
   };
 
   // Sayfa açıldığında token kontrolü
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (token) {
       const payload = parseJwt(token);
       const now = Math.floor(Date.now() / 1000);
 
-      if (payload?.username && (!payload.exp || payload.exp > now)) {
+      if (!payload || !payload.username || (payload.exp && payload.exp <= now)) {
+        // Token hatalı veya expired ise sil
+        localStorage.removeItem("token");
+      } else {
+        // Token geçerli ise kullanıcı zaten giriş yapmış
         navigate("/"); // Dashboard veya ana sayfa
       }
     }
