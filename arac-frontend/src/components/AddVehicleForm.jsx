@@ -1,124 +1,111 @@
 export default function AddVehicleForm({ vehicleForm, setVehicleForm, onSubmit }) {
+  const inputStyle = {
+    border: "4px solid red",
+    borderRadius: "0.5rem",
+    padding: "0.75rem",
+    backgroundColor: "white",
+    width: "100%",
+    outline: "none",
+  };
+
+  const focusStyle = {
+    boxShadow: "0 0 0 4px rgba(255,0,0,0.5)",
+  };
+
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
-      <h3 className="font-semibold text-lg text-gray-700">🚗 Araç Ekle</h3>
-      <input
-        required
-        placeholder="Marka"
-        value={vehicleForm.marka}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, marka: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
-      <input
-        required
-        placeholder="Model"
-        value={vehicleForm.model}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, model: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
-      <input
-        required
-        placeholder="Yıl"
-        value={vehicleForm.yil}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, yil: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
-      <input
-        required
-        placeholder="Renk"
-        value={vehicleForm.renk}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, renk: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
+    <form
+      onSubmit={onSubmit}
+      style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
+    >
+      <h3 style={{ fontWeight: 600, fontSize: "1.25rem", color: "#374151" }}>
+        🚗 Araç Ekle
+      </h3>
 
-      <input
-        required
-        placeholder="Plaka"
-        value={vehicleForm.plaka}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, plaka: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
+      {[
+        { label: "Marka", key: "marka", placeholder: "Toyota" },
+        { label: "Model", key: "model", placeholder: "Corolla" },
+        { label: "Yıl", key: "yil", placeholder: "2025", type: "number" },
+        { label: "Renk", key: "renk", placeholder: "Beyaz" },
+        { label: "Plaka", key: "plaka", placeholder: "34ABC123" },
+        { label: "Bulunduğu Yer", key: "yer", placeholder: "İstanbul Depo" },
+        { label: "Kullanan", key: "kullanan", placeholder: "Ali Veli" },
+        { label: "Başlangıç", key: "baslangic", type: "datetime-local" },
+        { label: "Son", key: "son", type: "datetime-local" },
+      ].map((field) => (
+        <div key={field.key} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          <label style={{ fontWeight: 500, color: "#374151" }}>{field.label}</label>
+          <input
+            required
+            type={field.type || "text"}
+            placeholder={field.placeholder || ""}
+            value={vehicleForm[field.key]}
+            onChange={(e) =>
+              setVehicleForm((s) => ({ ...s, [field.key]: e.target.value }))
+            }
+            style={inputStyle}
+            onFocus={(e) => Object.assign(e.target.style, focusStyle)}
+            onBlur={(e) => Object.assign(e.target.style, inputStyle)}
+          />
+        </div>
+      ))}
 
-      <input
-        placeholder="Bulunduğu Yer"
-        value={vehicleForm.yer}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, yer: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
+      {/* Durum */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <label style={{ fontWeight: 500, color: "#374151" }}>Durum</label>
+        <select
+          value={vehicleForm.durum}
+          onChange={(e) =>
+            setVehicleForm((s) => ({ ...s, durum: e.target.value }))
+          }
+          style={inputStyle}
+        >
+          <option value="">Seçiniz</option>
+          <option value="Tahsisli">Tahsisli</option>
+          <option value="Uygun">Uygun</option>
+          <option value="Kullanımda">Kullanımda</option>
+        </select>
+      </div>
 
-      <input
-        placeholder="Kullanan"
-        value={vehicleForm.kullanan}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, kullanan: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
-
-      <input
-        placeholder="Başlangıç (tarih/saat)"
-        value={vehicleForm.baslangic}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, baslangic: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
-
-      <input
-        placeholder="Son (tarih/saat)"
-        value={vehicleForm.son}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, son: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
-
-      <input
-        placeholder="Durum"
-        value={vehicleForm.durum}
-        onChange={e =>
-          setVehicleForm(s => ({ ...s, durum: e.target.value }))
-        }
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-      />
-
-      <div className="flex items-center gap-2">
+      {/* Tahsis */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <input
           type="checkbox"
           checked={vehicleForm.tahsis}
-          onChange={e =>
-            setVehicleForm(s => ({ ...s, tahsis: e.target.checked }))
+          onChange={(e) =>
+            setVehicleForm((s) => ({ ...s, tahsis: e.target.checked }))
           }
         />
-        <label className="text-gray-600">Tahsis Edildi mi?</label>
+        <label style={{ color: "#4B5563" }}>Tahsis Edildi mi?</label>
       </div>
 
       {vehicleForm.tahsis && (
-        <input
-          placeholder="Tahsisli Kişi"
-          value={vehicleForm.tahsisli}
-          onChange={e =>
-            setVehicleForm(s => ({ ...s, tahsisli: e.target.value }))
-          }
-          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-        />
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          <label style={{ fontWeight: 500, color: "#374151" }}>Tahsisli Kişi</label>
+          <input
+            placeholder="Tahsisli Kişi Adı"
+            value={vehicleForm.tahsisli}
+            onChange={(e) =>
+              setVehicleForm((s) => ({ ...s, tahsisli: e.target.value }))
+            }
+            style={inputStyle}
+            onFocus={(e) => Object.assign(e.target.style, focusStyle)}
+            onBlur={(e) => Object.assign(e.target.style, inputStyle)}
+          />
+        </div>
       )}
 
       <button
         type="submit"
-        className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        style={{
+          width: "100%",
+          padding: "0.75rem",
+          backgroundColor: "#2563EB",
+          color: "white",
+          borderRadius: "0.5rem",
+          fontWeight: 500,
+          cursor: "pointer",
+          border: "none",
+        }}
       >
         Araç Kaydet
       </button>
