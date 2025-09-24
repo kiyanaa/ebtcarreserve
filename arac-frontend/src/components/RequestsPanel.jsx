@@ -255,10 +255,10 @@ const RequestsPanel = () => {
                 payload.position === "havuz";
 
               return (
-                <tr key={request.kullanan}>
+                <tr key={request.id}>
                   <td className="px-4 py-2 border">{request.kullanan}</td>
-                  <td className="px-4 py-2 border">{request.baslangicYer}</td>
-                  <td className="px-4 py-2 border">{request.gidilecekYer}</td>
+                  <td className="px-4 py-2 border">{request.yer}</td> {/* Başlangıç Yeri */}
+                  <td className="px-4 py-2 border">{request.gidilecek_yer}</td> {/* Gidilecek Yer */}
                   <td className="px-4 py-2 border">{request.baslangic}</td>
                   <td className="px-4 py-2 border">{request.son}</td>
                   <td className="px-4 py-2 border">{request.neden}</td>
