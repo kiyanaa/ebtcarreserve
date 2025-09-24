@@ -4,4 +4,15 @@ module.exports = {
   theme: { extend: {} },
   plugins: [],
 }
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        kariyerBlue: '#CFE2F3',
+      },
+    },
+  },
+}
+
 
