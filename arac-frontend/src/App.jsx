@@ -60,7 +60,6 @@ function App({ username }) {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/releasevehicle" element={<ReleaseVehiclePage />} />
       <Route path="/logout" element={<LogoutPage />} />
-      <Route path="/register" element={<RegisterPage />} />
     </Routes>
   );
 }
