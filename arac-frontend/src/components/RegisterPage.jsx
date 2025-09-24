@@ -40,9 +40,6 @@ export default function RegisterPage() {
       if (!payload || !payload.username || (payload.exp && payload.exp <= now)) {
         // Token hatalı veya expired ise sil
         localStorage.removeItem("token");
-      } else {
-        // Token geçerli ise kullanıcı zaten giriş yapmış
-        navigate("/"); // Dashboard veya ana sayfa
       }
     }
   }, []);
