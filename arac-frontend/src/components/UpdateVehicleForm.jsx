@@ -1,84 +1,114 @@
 export default function UpdateVehicleForm({ updateForm, setUpdateForm, onSubmit }) {
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
-      <h3 className="font-semibold text-lg text-gray-700">🛠️ Araç Güncelle</h3>
+    <form onSubmit={onSubmit} className="space-y-4 p-6 bg-white shadow-md rounded-xl border border-red-400">
+      <h3 className="font-semibold text-xl text-gray-700 mb-4">🛠️ Araç Güncelle</h3>
 
-      <input
-        placeholder="Marka"
-        value={updateForm.marka}
-        disabled
-        onChange={e => setUpdateForm(s => ({ ...s, marka: e.target.value }))}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Marka</label>
+        <input
+          placeholder="Marka"
+          value={updateForm.marka}
+          disabled
+          onChange={e => setUpdateForm(s => ({ ...s, marka: e.target.value }))}
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 disabled:bg-gray-100 cursor-not-allowed"
+        />
+      </div>
 
-      <input
-        placeholder="Model"
-        value={updateForm.model}
-        disabled
-        onChange={e => setUpdateForm(s => ({ ...s, model: e.target.value }))}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Model</label>
+        <input
+          placeholder="Model"
+          value={updateForm.model}
+          disabled
+          onChange={e => setUpdateForm(s => ({ ...s, model: e.target.value }))}
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 disabled:bg-gray-100 cursor-not-allowed"
+        />
+      </div>
 
-      <input
-        placeholder="Yıl"
-        value={updateForm.yil}
-        disabled
-        onChange={e => setUpdateForm(s => ({ ...s, yil: e.target.value }))}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Yıl</label>
+        <input
+          placeholder="Yıl"
+          value={updateForm.yil}
+          disabled
+          onChange={e => setUpdateForm(s => ({ ...s, yil: e.target.value }))}
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 disabled:bg-gray-100 cursor-not-allowed"
+        />
+      </div>
 
-      <input
-        placeholder="Renk"
-        value={updateForm.renk}
-        disabled
-        onChange={e => setUpdateForm(s => ({ ...s, renk: e.target.value }))}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Renk</label>
+        <input
+          placeholder="Renk"
+          value={updateForm.renk}
+          disabled
+          onChange={e => setUpdateForm(s => ({ ...s, renk: e.target.value }))}
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 disabled:bg-gray-100 cursor-not-allowed"
+        />
+      </div>
 
-      <input
-        placeholder="Plaka"
-        required
-        value={updateForm.plaka}
-        disabled // Plaka genelde değişmez, disabled yapabiliriz
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400 bg-gray-100 cursor-not-allowed"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Plaka</label>
+        <input
+          placeholder="Plaka"
+          required
+          value={updateForm.plaka}
+          disabled
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-100 cursor-not-allowed"
+        />
+      </div>
 
-      <input
-        placeholder="Yer"
-        value={updateForm.yer}
-        onChange={e => setUpdateForm(s => ({ ...s, yer: e.target.value }))}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Yer</label>
+        <input
+          placeholder="Yer"
+          value={updateForm.yer}
+          onChange={e => setUpdateForm(s => ({ ...s, yer: e.target.value }))}
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
+      </div>
 
-      <input
-        placeholder="Kullanan"
-        value={updateForm.kullanan}
-        onChange={e => setUpdateForm(s => ({ ...s, kullanan: e.target.value }))}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Kullanan</label>
+        <input
+          placeholder="Kullanan"
+          value={updateForm.kullanan}
+          onChange={e => setUpdateForm(s => ({ ...s, kullanan: e.target.value }))}
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
+      </div>
 
-      <input
-        type="datetime-local"
-        placeholder="Başlangıç"
-        value={updateForm.baslangic}
-        onChange={e => setUpdateForm(s => ({ ...s, baslangic: e.target.value }))}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Başlangıç</label>
+        <input
+          type="datetime-local"
+          placeholder="Başlangıç"
+          value={updateForm.baslangic}
+          onChange={e => setUpdateForm(s => ({ ...s, baslangic: e.target.value }))}
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
+      </div>
 
-      <input
-        type="datetime-local"
-        placeholder="Bitiş"
-        value={updateForm.son}
-        onChange={e => setUpdateForm(s => ({ ...s, son: e.target.value }))}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Bitiş</label>
+        <input
+          type="datetime-local"
+          placeholder="Bitiş"
+          value={updateForm.son}
+          onChange={e => setUpdateForm(s => ({ ...s, son: e.target.value }))}
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
+      </div>
 
-      <input
-        placeholder="Durum"
-        value={updateForm.durum}
-        onChange={e => setUpdateForm(s => ({ ...s, durum: e.target.value }))}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-      />
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-1">Durum</label>
+        <input
+          placeholder="Durum"
+          value={updateForm.durum}
+          onChange={e => setUpdateForm(s => ({ ...s, durum: e.target.value }))}
+          className="w-full p-3 border-2 border-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
+      </div>
 
       <div className="flex items-center gap-2">
         <label className="text-sm text-gray-600">Tahsisli mi?</label>
@@ -86,16 +116,17 @@ export default function UpdateVehicleForm({ updateForm, setUpdateForm, onSubmit 
           type="checkbox"
           checked={updateForm.tahsis}
           onChange={e => setUpdateForm(s => ({ ...s, tahsis: e.target.checked }))}
+          className="accent-red-500"
         />
         <input
           placeholder="Tahsisli Kişi"
           value={updateForm.tahsisli}
           onChange={e => setUpdateForm(s => ({ ...s, tahsisli: e.target.value }))}
-          className="p-2 border rounded-lg flex-1 focus:ring-2 focus:ring-purple-400"
+          className="p-3 border-2 border-red-400 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-red-500"
         />
       </div>
 
-      <button className="w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+      <button className="w-full py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors">
         Güncelle
       </button>
     </form>
