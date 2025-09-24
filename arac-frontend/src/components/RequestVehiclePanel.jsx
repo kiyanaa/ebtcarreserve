@@ -162,6 +162,7 @@ const RequestVehiclePanel = () => {
             <th>Renk</th>
             <th>Plaka</th>
             <th>Kullanan</th>
+            <th>Gidilecek yer</th>
             <th>Sahip</th>
             <th>Başlangıç</th>
             <th>Son</th>
@@ -194,6 +195,7 @@ const RequestVehiclePanel = () => {
                   <td>{request.renk}</td>
                   <td>{request.plaka}</td>
                   <td>{request.kullanan}</td>
+                  <td>{request.yer}</td>
                   <td>{request.sahip}</td>
                   <td>{request.baslangic}</td>
                   <td>{request.son}</td>
