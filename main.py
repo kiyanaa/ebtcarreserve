@@ -109,7 +109,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Araç Tahsis Uygulaması")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://egebimtescarreservation.onrender.com"],  # frontend domain
+    allow_origins=["https://egebimtescarreservation.onrender.com", "http://localhost:5173"],   # frontend domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
