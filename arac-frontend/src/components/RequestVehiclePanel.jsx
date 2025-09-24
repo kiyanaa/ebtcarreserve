@@ -35,7 +35,7 @@ const RequestVehiclePanel = () => {
     setCurrentUser(username);
     const fetchRequests = async () => {
       try {
-        const response = await fetch("http://localhost:8000/istek_araclar", {
+        const response = await fetch("https://cardeal-vduj.onrender.com/istek_araclar", {
           headers: { "Authorization": `Bearer ${token}` },
         });
         if (!response.ok) throw new Error("Veri alırken bir hata oluştu");
@@ -72,7 +72,7 @@ const RequestVehiclePanel = () => {
     );
     if (!confirmAction) return;
     try {
-      const response = await fetch(`http://localhost:8000/arac_guncelle/${request.plaka}`, {
+      const response = await fetch(`https://cardeal-vduj.onrender.com/arac_guncelle/${request.plaka}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -94,11 +94,11 @@ const RequestVehiclePanel = () => {
       }
 
       // İstek kaydını sil
-      await fetch(`http://localhost:8000/istek_sil_tumu/${request.kullanan}`, {
+      await fetch(`https://cardeal-vduj.onrender.com/istek_sil_tumu/${request.kullanan}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` },
       });
-      await fetch(`http://localhost:8000/istek_sil_plaka/${request.plaka}`, {
+      await fetch(`https://cardeal-vduj.onrender.com/istek_sil_plaka/${request.plaka}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` },
       });
@@ -124,7 +124,7 @@ const RequestVehiclePanel = () => {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/istek_arac_sil`, {
+      const response = await fetch(`https://cardeal-vduj.onrender.com/istek_arac_sil`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
