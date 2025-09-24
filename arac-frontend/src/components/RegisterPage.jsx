@@ -1,5 +1,5 @@
 // components/RegisterPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
@@ -11,38 +11,6 @@ export default function RegisterPage() {
 
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-
-  // JWT parse fonksiyonu
-  const parseJwt = (token) => {
-    try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-      return JSON.parse(jsonPayload);
-    } catch (e) {
-      return null; // hatalı token
-    }
-  };
-
-  // Sayfa açıldığında token kontrolü
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      const payload = parseJwt(token);
-      const now = Math.floor(Date.now() / 1000);
-
-      if (!payload || !payload.username || (payload.exp && payload.exp <= now)) {
-        // Token hatalı veya expired ise sil
-        localStorage.removeItem("token");
-      }
-    }
-  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
