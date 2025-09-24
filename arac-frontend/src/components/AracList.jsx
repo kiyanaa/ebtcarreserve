@@ -25,41 +25,48 @@ const AracList = React.memo(function AracList() {
 
   // Token ve payload kontrolü
   useEffect(() => {
-    if (!token || !payload || !payload.username || (payload.exp && payload.exp < Math.floor(Date.now() / 1000))) {
-      localStorage.removeItem("token");
-      navigate("/login");
-      return;
-    }
+  const fetchVehicles = async () => {
+    try {
+      const response = await fetch("https://cardeal-vduj.onrender.com/araclar", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    // Payload username alert
-    alert("Payload position: " + payload.position);
-
-    const fetchVehicles = async () => {
-      try {
-        const response = await fetch("https://cardeal-vduj.onrender.com/araclar", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Veriler alınamadı");
-        const data = await response.json();
-
-        const sortedData = data.sort((a, b) => {
-          if (a.durum === "uygun" && b.durum !== "uygun") return -1;
-          if (a.durum !== "uygun" && b.durum === "uygun") return 1;
-          if (a.durum === "kullanımda" && b.durum !== "kullanımda") return -1;
-          if (a.durum !== "kullanımda" && b.durum === "kullanımda") return 1;
-          return 0;
-        });
-
-        setVehicles(sortedData);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(
+          `Veriler alınamadı (status: ${response.status} ${response.statusText})`
+        );
       }
-    };
 
+      const data = await response.json();
+
+      const sortedData = data.sort((a, b) => {
+        if (a.durum === "uygun" && b.durum !== "uygun") return -1;
+        if (a.durum !== "uygun" && b.durum === "uygun") return 1;
+        if (a.durum === "kullanımda" && b.durum !== "kullanımda") return -1;
+        if (a.durum !== "kullanımda" && b.durum === "kullanımda") return 1;
+        return 0;
+      });
+
+      setVehicles(sortedData);
+      setLoading(false);
+    } catch (err) {
+      console.error("Araç listesi hata:", err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  if (token) {
     fetchVehicles();
-  }, [token, payload, navigate]);
+  } else {
+    console.warn("⚠️ Token bulunamadı, araçlar çekilemedi.");
+    setLoading(false);
+  }
+}, [token, payload, navigate]);
 
   const handleDeleteVehicle = async (plaka) => {
     if (!window.confirm(`Aracı silmek istediğinize emin misiniz? Plaka: ${plaka}`)) return;
