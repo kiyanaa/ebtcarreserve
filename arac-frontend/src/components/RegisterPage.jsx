@@ -1,5 +1,5 @@
 // components/RegisterPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
@@ -10,7 +10,37 @@ export default function RegisterPage() {
   });
 
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // <-- navigate hook
+  const navigate = useNavigate();
+
+  // JWT parse fonksiyonu
+  const parseJwt = (token) => {
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  // Sayfa açıldığında token kontrolü
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = parseJwt(token);
+      const now = Math.floor(Date.now() / 1000);
+
+      if (payload?.username && (!payload.exp || payload.exp > now)) {
+        navigate("/"); // Dashboard veya ana sayfa
+      }
+    }
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -35,7 +65,6 @@ export default function RegisterPage() {
         setMessage("Kayıt başarılı: " + data.user.username);
         setForm({ username: "", password: "", department: "" });
 
-        // 1 saniye sonra login sayfasına yönlendir
         setTimeout(() => {
           navigate("/login");
         }, 1000);
@@ -50,34 +79,52 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-md w-96 space-y-4">
         <h2 className="text-2xl font-bold text-center text-gray-700">Kayıt Ol</h2>
 
-        <input
-          type="text"
-          name="username"
-          placeholder="Kullanıcı Adı"
-          value={form.username}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-        />
+        <div className="flex flex-col">
+          <label htmlFor="username" className="mb-1 text-gray-600 font-medium">
+            Kullanıcı Adı
+          </label>
+          <input
+            id="username"
+            type="text"
+            name="username"
+            placeholder="Kullanıcı Adı"
+            value={form.username}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded-lg border-red-500 focus:ring-2 focus:ring-purple-400"
+          />
+        </div>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Şifre"
-          value={form.password}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-        />
+        <div className="flex flex-col">
+          <label htmlFor="password" className="mb-1 text-gray-600 font-medium">
+            Şifre
+          </label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            placeholder="Şifre"
+            value={form.password}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded-lg border-red-500 focus:ring-2 focus:ring-purple-400"
+          />
+        </div>
 
-        <input
-          type="text"
-          name="department"
-          placeholder="Departman (Opsiyonel)"
-          value={form.department}
-          onChange={handleChange}
-          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-400"
-        />
+        <div className="flex flex-col">
+          <label htmlFor="department" className="mb-1 text-gray-600 font-medium">
+            Departman (Opsiyonel)
+          </label>
+          <input
+            id="department"
+            type="text"
+            name="department"
+            placeholder="Departman"
+            value={form.department}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-lg border-red-500 focus:ring-2 focus:ring-purple-400"
+          />
+        </div>
 
         <button
           type="submit"
