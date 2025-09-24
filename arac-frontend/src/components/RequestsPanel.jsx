@@ -103,12 +103,12 @@ const RequestsPanel = () => {
                 payload.username === request.kullanan ||
                 payload.position === "admin" ||
                 payload.position === "havuz";
-
+        
               return (
                 <tr key={request.kullanan + request.baslangic}>
                   <td className="px-4 py-2 border">{request.kullanan}</td>
-                  <td className="px-4 py-2 border">{request.baslangicYer}</td>
-                  <td className="px-4 py-2 border">{request.gidilecekYer}</td>
+                  <td className="px-4 py-2 border">{request.yer}</td>
+                  <td className="px-4 py-2 border">{request.gidilecek_yer}</td>
                   <td className="px-4 py-2 border">{request.baslangic}</td>
                   <td className="px-4 py-2 border">{request.son}</td>
                   <td className="px-4 py-2 border">{request.neden}</td>
