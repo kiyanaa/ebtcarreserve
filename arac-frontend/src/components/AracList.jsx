@@ -141,7 +141,7 @@ const AracList = React.memo(function AracList() {
                 ["admin", "havuz"].includes(userPosition);
 
               const canTake =
-                (a.tahsisli === currentUser && a.durum === "kullanımda") ||
+                (a.tahsisli === currentUser && a.durum === "uygun") ||
                 ["admin", "havuz"].includes(userPosition);
 
               return (
