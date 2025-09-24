@@ -6,41 +6,40 @@ function LoginPage() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const formData = new URLSearchParams();
-  formData.append("grant_type", "password");
-  formData.append("username", username);
-  formData.append("password", password);
+    const formData = new URLSearchParams();
+    formData.append("grant_type", "password");
+    formData.append("username", username);
+    formData.append("password", password);
 
-  try {
-    const response = await fetch("https://cardeal-vduj.onrender.com/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: formData.toString(),
-    });
+    try {
+      const response = await fetch("https://cardeal-vduj.onrender.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      });
 
-    if (!response.ok) {
-      throw new Error("Sunucu hatası veya giriş başarısız");
+      if (!response.ok) {
+        throw new Error("Sunucu hatası veya giriş başarısız");
+      }
+
+      const data = await response.json();
+
+      if (data.access_token) {
+        localStorage.setItem("token", data.access_token);
+        alert("Giriş başarılı!");
+        window.location.href = "/";
+      } else {
+        alert("Hatalı kullanıcı adı veya şifre!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Giriş yapılırken bir hata oluştu!");
     }
-
-    const data = await response.json();
-
-    if (data.access_token) {
-      localStorage.setItem("token", data.access_token);
-      alert("Giriş başarılı!");
-      window.location.href = "/";
-    } else {
-      alert("Hatalı kullanıcı adı veya şifre!");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Giriş yapılırken bir hata oluştu!");
-  }
-};
-
+  };
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
@@ -51,21 +50,29 @@ function LoginPage() {
         <h2 className="text-2xl font-bold mb-4">Giriş Yap</h2>
 
         {/* Kullanıcı adı */}
+        <label htmlFor="username" className="text-left font-medium">
+          Kullanıcı Adı
+        </label>
         <input
+          id="username"
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full px-3 py-2 border rounded"
+          className="w-full px-3 py-2 border border-red-500 rounded"
           placeholder="Kullanıcı Adı"
           required
         />
 
         {/* Şifre */}
+        <label htmlFor="password" className="text-left font-medium">
+          Şifre
+        </label>
         <input
+          id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 border rounded"
+          className="w-full px-3 py-2 border border-red-500 rounded"
           placeholder="Şifre"
           required
         />
