@@ -18,7 +18,6 @@ const RequestVehiclePanel = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Kullanıcının username'i token'dan alınıyor
   const [currentUser, setCurrentUser] = useState("");
 
   useEffect(() => {
@@ -31,8 +30,8 @@ const RequestVehiclePanel = () => {
 
     const decoded = parseJwt(token);
     const username = decoded.username || decoded.user || "";
-    const position = decoded.position;
     setCurrentUser(username);
+
     const fetchRequests = async () => {
       try {
         const response = await fetch("https://cardeal-vduj.onrender.com/istek_araclar", {
@@ -68,9 +67,14 @@ const RequestVehiclePanel = () => {
     }
 
     const confirmAction = window.confirm(
-      `İsteği onaylamak istediğinize emin misiniz?\nKullanıcı: ${request.kullanan}\nPlaka: ${request.plaka}`
+      `İsteği onaylamak istediğinize emin misiniz?\n` +
+      `Kullanıcı: ${request.kullanan}\n` +
+      `Plaka: ${request.plaka}\n` +
+      `Başlangıç Yeri: ${request.yer}\n` +
+      `Gidilecek Yer: ${request.gidilecek_yer}`
     );
     if (!confirmAction) return;
+
     try {
       const response = await fetch(`https://cardeal-vduj.onrender.com/arac_guncelle/${request.plaka}`, {
         method: "PUT",
@@ -81,10 +85,11 @@ const RequestVehiclePanel = () => {
         body: JSON.stringify({
           durum: "kullanımda",
           kullanan: request.kullanan,
-          sahip: request.tahsisli || "havuz", // ✅ Token'dan alınan sahip bilgisi
+          sahip: request.tahsisli || "havuz",
           baslangic: request.baslangic,
           son: request.son,
-          yer: request.yer
+          yer: request.yer,
+          gidilecek_yer: request.gidilecek_yer
         }),
       });
 
@@ -93,7 +98,7 @@ const RequestVehiclePanel = () => {
         throw new Error(errData.detail || "Araç güncellenemedi");
       }
 
-      // İstek kaydını sil
+      // İstekleri sil
       await fetch(`https://cardeal-vduj.onrender.com/istek_sil_tumu/${request.kullanan}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` },
@@ -165,13 +170,15 @@ const RequestVehiclePanel = () => {
             <th>Sahip</th>
             <th>Başlangıç</th>
             <th>Son</th>
+            <th>Yer</th>
+            <th>Gidilecek Yer</th>
             <th>Aksiyonlar</th>
           </tr>
         </thead>
         <tbody>
           {requests.length === 0 ? (
             <tr>
-              <td colSpan="10" className="text-center">İstek bulunamadı</td>
+              <td colSpan="12" className="text-center">İstek bulunamadı</td>
             </tr>
           ) : (
             requests.map(request => {
@@ -180,7 +187,6 @@ const RequestVehiclePanel = () => {
               const currentUser = decoded.username;
               const pozisyon = decoded.position;
 
-              // canConfirm değişkeni
               const canConfirm = (
                 (request.sahip === "havuz" && (pozisyon === "admin" || pozisyon === "havuz")) ||
                 (request.sahip !== "havuz" && (currentUser === request.sahip || pozisyon === "admin"))
@@ -197,6 +203,8 @@ const RequestVehiclePanel = () => {
                   <td>{request.sahip}</td>
                   <td>{request.baslangic}</td>
                   <td>{request.son}</td>
+                  <td>{request.yer}</td>
+                  <td>{request.gidilecek_yer}</td>
                   <td>
                     {canConfirm && (
                       <button
