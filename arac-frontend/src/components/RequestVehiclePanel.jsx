@@ -88,8 +88,7 @@ const RequestVehiclePanel = () => {
           sahip: request.tahsisli || "havuz",
           baslangic: request.baslangic,
           son: request.son,
-          yer: request.yer,
-          gidilecek_yer: request.gidilecek_yer
+          yer: request.gidilecek_yer,
         }),
       });
 
